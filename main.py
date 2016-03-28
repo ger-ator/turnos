@@ -10,19 +10,23 @@ from PyQt5.QtSql import *
 import anadir_dialog
 import asignar_dialog
 import eliminar_dialog
+import imprimir_dialog
 import connection
+from trabajador import *
 
 path = os.path.dirname(os.path.abspath(__file__))
 GestionUI, GestionBase = uic.loadUiType(os.path.join(path, 'mainwindow.ui'))
 
 class MyDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None, *args):
+    ##El argumento columna indica la referencia para colorear rojo o verde
+    def __init__(self, columna, parent=None, *args):
         QStyledItemDelegate.__init__(self, parent, *args)
+        self.columna = columna
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         painter.save()
-        asignado = index.sibling(index.row(),1)
+        asignado = index.sibling(index.row(), self.columna)
         if asignado.data() == "":
             painter.setPen(QPen(Qt.NoPen))
             painter.setBrush(QBrush(QColor('red')))
@@ -42,78 +46,102 @@ class Gestion(GestionBase, GestionUI):
     def __init__(self, parent = None):
         GestionBase.__init__(self, parent)
         self.setupUi(self)
-        
-        self.model = QSqlQueryModel(self)
+
+        ####Configuracion del origen de datos
+        self.model = QSqlRelationalTableModel(self)
+        self.model.setTable("sustituciones")
+        self.model.setJoinMode(QSqlRelationalTableModel.InnerJoin)
+        self.model.setRelation(self.model.fieldIndex("sustituido_id"),
+                               QSqlRelation("personal",
+                                            "personal_id",
+                                            "nombre, apellido1, apellido2, puesto, unidad"))
+        self.model.setRelation(self.model.fieldIndex("baja_id"),
+                               QSqlRelation("bajas",
+                                            "baja_id",
+                                            "motivo"))
+        self.model.setFilter("fecha = '{0}'".format(self.calendarWidget.selectedDate().toString(Qt.ISODate)))
+        self.model.select()
         self.necesidades_view.setModel(self.model)
-##        self.coloreafilas = MyDelegate(self)
-##        self.necesidades_view.setItemDelegate(self.coloreafilas)
-        self.necesidades_view.setItemDelegate(MyDelegate(self))
-        self.load_necesidades_model(self.calendarWidget.selectedDate())
+        ####
+        ####Configuracion visual de la tabla
+        self.necesidades_view.hideColumn(self.model.fieldIndex("sustitucion_id"))
+        self.model.setHeaderData(self.model.fieldIndex("nombre"),
+                                 Qt.Horizontal, "Nombre")
+        self.model.setHeaderData(self.model.fieldIndex("apellido1"),
+                                 Qt.Horizontal, "Primer Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("apellido2"),
+                                 Qt.Horizontal, "Segundo Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("puesto"),
+                                 Qt.Horizontal, "Puesto")
+        self.model.setHeaderData(self.model.fieldIndex("unidad"),
+                                 Qt.Horizontal, "Unidad")
+        self.model.setHeaderData(self.model.fieldIndex("motivo"),
+                                 Qt.Horizontal, "Motivo")
+        self.necesidades_view.hideColumn(self.model.fieldIndex("fecha"))
+        self.model.setHeaderData(self.model.fieldIndex("turno"),
+                                 Qt.Horizontal, "Turno")
+        self.necesidades_view.hideColumn(self.model.fieldIndex("sustituto_id"))
+        self.necesidades_view.setItemDelegate(MyDelegate(self.model.fieldIndex("sustituto_id")))
+        self.necesidades_view.resizeColumnsToContents()
+        ####
         self.asignado_ledit.setReadOnly(True)
-                
+
+        ####Asignacion de eventos               
         self.actionAnadir.triggered.connect(self.anadir_btn_clicked)
         self.actionEliminar.triggered.connect(self.eliminar_btn_clicked)
+        self.actionImprimir.triggered.connect(self.imprimir)
+        self.actionVista_previa.triggered.connect(self.vista_previa)
         self.calendarWidget.clicked.connect(self.calendarWidget_clicked)
         self.necesidades_view.doubleClicked.connect(self.necesidades_dclicked)
         self.necesidades_view.clicked.connect(self.necesidades_clicked)
+        ####
 
     def eliminar_btn_clicked(self):
         dlg = eliminar_dialog.EliminarDialog(self)
         if dlg.exec_():
-            self.load_necesidades_model(self.calendarWidget.selectedDate())
+            self.model.select()
+            self.necesidades_view.resizeColumnsToContents()
 
     def anadir_btn_clicked(self):
         dlg = anadir_dialog.AnadirDialog(self)
         if dlg.exec_():
-            self.load_necesidades_model(self.calendarWidget.selectedDate())
+            self.model.select()
+            self.necesidades_view.resizeColumnsToContents()
 
     def calendarWidget_clicked(self, date):
-        self.load_necesidades_model(date)
+        self.model.setFilter("Fecha = '{0}'".format(date.toString(Qt.ISODate)))
+        self.model.select()
+        self.necesidades_view.resizeColumnsToContents()
         self.asignado_ledit.clear()
 
     def necesidades_dclicked(self, index):
         necesidad_id = index.sibling(index.row(),0)        
         dlg = asignar_dialog.AsignarDialog(necesidad_id.data())
         if dlg.exec_():
-            self.load_necesidades_model(self.calendarWidget.selectedDate())
-            
-###HAGO LOAD_NECESIDADES_MODEL PARA REDIBUJAR
-###TENGO QUE REPLANTEARME HACER ESTO DE OTRA MANERA
-###A VER SI PUEDO USAR UN QSQLTABLEMODEL            
-    def load_necesidades_model(self, fecha):
-        query = QSqlQuery()
-        query.prepare("SELECT necesidades.Id, necesidades.Asignado, personal.Nombre, "
-                      "personal.Apellido1, personal.Apellido2, personal.Puesto, "
-                      "personal.Unidad, necesidades.Turno, necesidades.Motivo "
-                      "FROM necesidades "
-                      "LEFT JOIN personal "
-                      "ON necesidades.trabajadorid = personal.Id "
-                      "WHERE Fecha = ?")
-        query.addBindValue(fecha)
-        query.exec_()
-        self.model.setQuery(query)
-        self.necesidades_view.resizeColumnsToContents()
-        self.necesidades_view.hideColumn(0) ##Id
-        self.necesidades_view.hideColumn(1) ##Asignado
-        
+            self.model.select()
+            self.necesidades_view.resizeColumnsToContents()
 
     def necesidades_clicked(self, index):
-        necesidad_id = index.sibling(index.row(),0)
-        query = QSqlQuery()
-        
-        query.prepare("SELECT personal.Nombre, personal.Apellido1, personal.Apellido2 "
-                      "FROM necesidades "
-                      "LEFT JOIN personal ON necesidades.Asignado = personal.Id "
-                      "WHERE necesidades.Id = ?")
+        necesidad_id = index.sibling(index.row(), self.model.fieldIndex("sustituto_id"))#Columna de asignado
+        query = QSqlQuery()        
+        query.prepare("SELECT nombre, apellido1, apellido2 "
+                      "FROM personal "
+                      "WHERE personal_id = ?")
         query.addBindValue(necesidad_id.data())
         query.exec_()
         query.first()        
-        self.asignado_ledit.setText(str(query.value(0)) + " " +
-                                    str(query.value(1)) + " " +
-                                    str(query.value(2)))
-        
-        
-        
+        self.asignado_ledit.setText(" ".join(str(query.value(i)) for i in range(3)))
+    
+    def imprimir(self):
+        dlg = imprimir_dialog.ImprimirDialog(VistaPrevia = False)
+        if not dlg.exec_() == QDialog.Accepted:
+            print("Error al imprimir.")
+
+    def vista_previa(self):
+        dlg = imprimir_dialog.ImprimirDialog(VistaPrevia = True)
+        if not dlg.exec_() == QDialog.Accepted:
+            print("Error al generar vista previa.")
+
         
 ###############################################################################3
 if __name__ == '__main__':

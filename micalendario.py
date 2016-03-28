@@ -11,9 +11,9 @@ class MiCalendario(QCalendarWidget):
 
     def paintCell(self, painter, rect, date):
         query = QSqlQuery()
-        query.prepare("SELECT COUNT(Id), COUNT(Asignado) "
-                      "FROM necesidades "
-                      "WHERE Fecha = ?")
+        query.prepare("SELECT COUNT(sustitucion_id), COUNT(sustituto_id) "
+                      "FROM sustituciones "
+                      "WHERE fecha = ?")
         query.addBindValue(date)
         query.exec_()
         query.first()

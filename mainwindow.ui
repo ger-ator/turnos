@@ -92,6 +92,15 @@
     <addaction name="actionAnadir"/>
     <addaction name="actionEliminar"/>
    </widget>
+   <widget class="QMenu" name="menuArchivo">
+    <property name="title">
+     <string>Archivo</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionVista_previa"/>
+    <addaction name="actionImprimir"/>
+   </widget>
+   <addaction name="menuArchivo"/>
    <addaction name="menuHerramientas"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -105,6 +114,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionImprimir"/>
+   <addaction name="separator"/>
    <addaction name="actionAnadir"/>
    <addaction name="actionEliminar"/>
   </widget>
@@ -136,6 +147,33 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionImprimir">
+   <property name="icon">
+    <iconset>
+     <normaloff>iconos/print.svg</normaloff>iconos/print.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Imprimir</string>
+   </property>
+   <property name="toolTip">
+    <string>Imprime el mes en curso.</string>
+   </property>
+  </action>
+  <action name="actionVista_previa">
+   <property name="icon">
+    <iconset>
+     <normaloff>iconos/print-preview.svg</normaloff>iconos/print-preview.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Vista previa</string>
+   </property>
+   <property name="toolTip">
+    <string>Vista previa de impresión</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>

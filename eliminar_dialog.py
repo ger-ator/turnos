@@ -17,13 +17,17 @@ class EliminarDialog(EliminarDlgBase, EliminarDlgUI):
         EliminarDlgBase.__init__(self, parent)
         self.setupUi(self)
 
-        self.model = QSqlQueryModel(self)
-        self.model.setQuery("SELECT bajas.Id, personal.Nombre, personal.Apellido1, "
-                            "personal.Apellido2, bajas.Inicio, bajas.Final "
+        self.model = QSqlQueryModel(self)
+
+        self.model.setQuery("SELECT bajas.baja_id, personal.nombre, personal.apellido1, "
+                            "personal.apellido2, bajas.inicio, bajas.final "
                             "FROM bajas "
-                            "LEFT JOIN personal ON bajas.trabajadorid = personal.Id")
-        self.bajas_view.setModel(self.model)
-        self.bajas_view.hideColumn(0) ##Id
+                            "LEFT JOIN personal ON bajas.sustituido_id = personal.personal_id")
+
+        self.bajas_view.setModel(self.model)
+
+        self.bajas_view.hideColumn(0) ##Id
+
         self.bajas_view.resizeColumnsToContents()
 
         self.buttonBox.accepted.connect(self.buttonBox_OK)
@@ -41,10 +45,10 @@ class EliminarDialog(EliminarDlgBase, EliminarDlgUI):
     def bajas_dclicked(self, index):
         bajas_id = index.sibling(index.row(),0)
         query = QSqlQuery()
-        query.prepare("DELETE FROM necesidades WHERE bajaid = ?")
+        query.prepare("DELETE FROM sustituciones WHERE baja_id = ?")
         query.addBindValue(bajas_id.data())
         query.exec_()
-        query.prepare("DELETE FROM bajas WHERE Id = ?")
+        query.prepare("DELETE FROM bajas WHERE baja_id = ?")
         query.addBindValue(bajas_id.data())
         query.exec_()
         self.accept()    
