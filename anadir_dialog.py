@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtSql import *
 from connection import *
-import datetime
+from baja import *
 
 path = os.path.dirname(os.path.abspath(__file__))
 AnadirDlgUI, AnadirDlgBase = uic.loadUiType(os.path.join(path, 'anadir.ui'))
@@ -23,25 +23,24 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
         self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Apellido1',
                                    'Apellido2', 'Equipo', 'Puesto'])
 
-        self.model = QSqlQueryModel(self)
-        self.model.setQuery("SELECT Id, Siglas, Nombre, Apellido1, Apellido2, Puesto, Equipo "
-                            "FROM personal")
+        self.model = QSqlTableModel(self)
+        self.model.setTable("personal")
+        self.model.select()
         self.resultado_view.setModel(self.model)
         self.resultado_view.hideColumn(0) ##Id
+        self.resultado_view.hideColumn(6) ##Unidad
         self.resultado_view.resizeColumnsToContents()
 
         self.buscar_ledit.textEdited.connect(self.buscar_text_edited)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
 
     def buscar_text_edited(self):
-        query = QSqlQuery()
-        query.prepare("SELECT Id, Siglas, Nombre, Apellido1, Apellido2, Puesto, Equipo "
-                      "from personal WHERE {0} = ?".format(self.filtro_cbox.currentText()))        
-        query.addBindValue(self.buscar_ledit.text())
-        query.exec_()
-        self.model.setQuery(query)
+        self.model.setFilter("{0} = '{1}'".format(self.filtro_cbox.currentText().lower(),
+                                                        self.buscar_ledit.text()))
 
     def buttonBox_OK(self):
+        ##No estaria mal añadir un selectedmodel y
+        ##seleccionar por row como con el dialogo de imprimir
         fila = self.resultado_view.selectedIndexes()
         
         if fila == []:
@@ -52,9 +51,10 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
             return False
         else:
             trabajador_id = fila[0].sibling(fila[0].row(), 0)
-            insertBaja(trabajador_id.data(),
-                       self.inicio_dedit.date(),
-                       self.final_dedit.date())
+            baja = Baja(trabajador_id.data(),
+                        self.inicio_dedit.date(),
+                        self.final_dedit.date(),
+                        "Baja medica")
             self.accept()
             
 #######################################################################################
