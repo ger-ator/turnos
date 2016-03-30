@@ -21,11 +21,12 @@ class Baja(object):
                 self.sustituido = Sustituido(query.value(0))
                 self.inicio = QDate.fromString(query.value(1), Qt.ISODate)
                 self.final = QDate.fromString(query.value(2), Qt.ISODate)
-                self.motivo = query.value(3)            
+                self.motivo = query.value(3)
+                self.sustituciones = self.cargaSustituciones()
             else:
                 raise ValueError
         ##Si proporciono 4 argumentos supongo que quiero crear una entrada
-        ##en la base de datos, *args=(sustituido_id, inicio, final, turno)
+        ##en la base de datos, *args=(sustituido_id, inicio, final, motivo)
         elif len(args) == 4:
             query = QSqlQuery()
             query.prepare("INSERT INTO bajas "
@@ -45,11 +46,13 @@ class Baja(object):
             self.inicio = args[1]
             self.final = args[2]
             self.motivo = args[3]
+            self.sustituciones = self.creaSustituciones()
         else:
             raise RuntimeError("Error en numero de argumentos de Baja(*args).")
 
     def creaSustituciones(self):
-        query = QSqlQuery()        
+        query = QSqlQuery()
+        sustituciones = []
         for turno in [Turno.manana, Turno.tarde, Turno.noche, Turno.reten]:
             query.prepare("SELECT fecha FROM calendario "
                           "WHERE ( fecha BETWEEN date(:inicio) AND date(:final) ) "
@@ -62,7 +65,26 @@ class Baja(object):
 
             ##Inserto las necesidades de personal generadas por la baja
             while query.next():
-                Sustitucion(self.sustituido.getId(),
-                            query.value(0),
-                            turno,
-                            self.bajaid)
+                tmp = Sustitucion(self.sustituido.getId(),
+                                  query.value(0),
+                                  turno,
+                                  self.bajaid)
+                sustituciones.append(tmp)
+        else:
+            return sustituciones
+
+    def cargaSustituciones(self):
+        query = QSqlQuery()
+        sustituciones = []
+        query.prepare("SELECT sustitucion_id FROM sustituciones "
+                      "WHERE baja_id = ?")
+        query.addBindValue(self.bajaid)
+        if not query.exec_():
+            print("Error al cargar sustituciones.")
+            print(query.lastError().text())
+
+        while query.next():
+            tmp = Sustitucion(query.value(0))
+            sustituciones.append(tmp)
+        else:
+            return sustituciones

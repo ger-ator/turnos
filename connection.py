@@ -12,6 +12,16 @@ class Turno(Enum):
     simulador = "Simulador"
     sin_asignar = ""
 
+    def __sub__(self, turno):
+        if self is Turno.manana and turno is Turno.noche:
+            return 0
+        elif self is Turno.tarde and turno is Turno.manana:
+            return 0
+        elif self is Turno.noche and turno is Turno.tarde:
+            return 0
+        else:
+            return 8            
+
 class Puesto(Enum):
     JTurno = "Jefe de Turno"
     Supervisor = "Supervisor"

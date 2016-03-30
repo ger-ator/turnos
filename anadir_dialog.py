@@ -55,7 +55,6 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
                         self.inicio_dedit.date(),
                         self.final_dedit.date(),
                         "Baja medica")
-            baja.creaSustituciones()
             self.accept()
             
 #######################################################################################

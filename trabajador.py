@@ -90,9 +90,8 @@ class Sustituido(Trabajador):
             return False
 
 class Candidato(Trabajador):
-    def __init__(self, trabajadorid, fecha):
+    def __init__(self, trabajadorid):
         Trabajador.__init__(self, trabajadorid)
-        self.turno_dia_anterior = self.getTurno(fecha.addDays(-1))
 
     def esta_de_baja(self, fecha):
         query = QSqlQuery()
@@ -168,7 +167,7 @@ class Candidato(Trabajador):
             query.first()
             return Turno(query.value(0))
         else:
-            return Trabajador.getTurno(self, fecha)
+            return Trabajador.getTurno(self, fecha)     
 
 class Sustitucion(object):
     def __init__(self, *args):
@@ -258,7 +257,7 @@ class Sustitucion(object):
         descanso_Ucontraria = []
 
         while query.next():
-            pringao = Candidato(query.value(0), self.fecha)
+            pringao = Candidato(query.value(0))
             if (pringao.esta_de_turno(self.fecha)
                 or pringao.esta_sustituyendo(self.fecha)
                 or pringao.esta_de_baja(self.fecha)):
@@ -296,49 +295,45 @@ class Sustitucion(object):
         return self.fecha
     
     def asignaCandidato(self, trabajadorid):
-##        candidato = self.candidatos.getCandidato(trabajadorid)
-##        turno_dia_anterior = candidato.turno_dia_anterior
-##        turno_del_sustituido = self.sustituido.getTurno(self.getFecha())
-##        if (turno_del_sustituido == "Mañana" and
-##            turno_dia_anterior == "Noche"):
-##            query = QSqlQuery()
-##            ###BUSCAR TRABAJADOR QUE ESTA DE TARDE
-##            query.prepare("SELECT * FROM calendario")
-##            ###
-##            query.prepare("INSERT INTO necesidades "
-##                          "(trabajadorid, Fecha, Turno, Motivo, bajaid, Asignado) "
-##                          "VALUES (?, ?, ?, ?, ?, ?)")
-##            query.addBindValue(trabajadorid)
-##            query.addBindValue(self.getFecha()) ##FECHA
-##            query.addBindValue(self.sustituto.getTurno()) ##TURNO
-##            query.addBindValue("Cambio a peticion de empresa")
-##            query.addBindValue(self.bajaid)
-##            query.addBindValue(trabadorid_TTarde)
-##            query.exec_()
-##            ##CAMBIA AL DE TARDE A MAÑANA Y ASIGNA TARDE
-##        else:
-##            query = QSqlQuery()
-##            query.prepare("UPDATE necesidades SET Asignado = ? WHERE Id = ?")
-##            query.addBindValue(trabajadorid)
-##            query.addBindValue(self.getId())
-##            query.exec_()
-
-        query = QSqlQuery()
-        query.prepare("UPDATE sustituciones "
-                      "SET sustituto_id = ? "
-                      "WHERE sustitucion_id = ?")
-        query.addBindValue(trabajadorid)
-        query.addBindValue(self.getId())
-        query.exec_()
+        candidato = Candidato(trabajadorid)
+        turno_ayer = candidato.getTurno(self.fecha.addDays(-1))
+        ##Solo se contempla hacer una sustitucion diaria, luego solo
+        ##hay que comprobar si va de mañana y el dia anterior de noche.
+        turno_sustitucion = self.sustituido.getTurno(self.fecha)
+        ##Si no hay descanso entre turnos
+        if turno_ayer is Turno.noche and turno_sustitucion is Turno.manana:
+            print("no descansa 8h, tengo que cambiar al de tarde a manana")
+            ##Conseguir el ID del trabajador de tarde
+            ##cambio = Baja(id del trabajador de tarde, self.fecha, self.fecha, "Cambio Turno")
+            ##for i in cambio.sustituciones:
+            ##  i.asignaCandidato(trabajadorid)
+            ##query = QSqlQuery()
+            ##query.prepare("UPDATE sustituciones "
+            ##              "SET sustituto_id = ? "
+            ##              "WHERE sustitucion_id = ?")
+            ##query.addBindValue(ID del trabajador de tarde)
+            ##query.addBindValue(self.getId())
+            ##query.exec_()            
+        ##Si descansa 8 horas entre turnos
+        else:
+            query = QSqlQuery()
+            query.prepare("UPDATE sustituciones "
+                          "SET sustituto_id = ? "
+                          "WHERE sustitucion_id = ?")
+            query.addBindValue(trabajadorid)
+            query.addBindValue(self.getId())
+            query.exec_()        
 
 #######################################################################################
 if __name__ == '__main__':
     app = QApplication([])
     if not createConnection():
         sys.exit(1)
-        
+
+    Turno.manana - Turno.manana    
     ##Sustitucion(1)
-    Sustitucion(1, QDate(2016, 3, 23), Turno.manana, 7)
+    Candidato(1)
+##    Sustitucion(1, QDate(2016, 3, 23), Turno.manana, 7)
     
 ##    gmb = Trabajador(1)
 

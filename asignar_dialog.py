@@ -36,7 +36,7 @@ class AsignarDialog(AsignarDlgBase, AsignarDlgUI):
             query.prepare("INSERT INTO temporal (sustituto_id, turno) "
                           "VALUES (?, ?)")
             query.addBindValue(i.getId())
-            query.addBindValue(i.getTurno(self.a_cubrir.getFecha()))
+            query.addBindValue(i.getTurno(self.a_cubrir.getFecha()).value)
             query.exec_()
 
         querystr = ("SELECT personal.personal_id, personal.nombre, "

@@ -62,6 +62,7 @@ class Gestion(GestionBase, GestionUI):
         self.model.setFilter("fecha = '{0}'".format(self.calendarWidget.selectedDate().toString(Qt.ISODate)))
         self.model.select()
         self.necesidades_view.setModel(self.model)
+        self.necesidades_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
         ####
         ####Configuracion visual de la tabla
         self.necesidades_view.hideColumn(self.model.fieldIndex("sustitucion_id"))
