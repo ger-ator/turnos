@@ -74,7 +74,7 @@ class AsignarDialog(AsignarDlgBase, AsignarDlgUI):
             self.sustitutos_dclicked(fila[0])
             
     def sustitutos_dclicked(self, index):
-        trabajador_id = index.sibling(index.row(),1)
+        trabajador_id = index.sibling(index.row(),self.model.fieldIndex("personal_id"))
         self.a_cubrir.asignaCandidato(trabajador_id.data())
         self.accept()
             
