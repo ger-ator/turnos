@@ -124,5 +124,14 @@ def createConnection():
                     "FOREIGN KEY(sustituido_id) REFERENCES personal(personal_id), "
                     "FOREIGN KEY(sustituto_id) REFERENCES personal(personal_id), "
                     "FOREIGN KEY(baja_id) REFERENCES bajas(baja_id))")
-        
+
+    if 'candidatos' not in db.tables():
+        query = QtSql.QSqlQuery()
+        query.exec_("""PRAGMA foreign_keys = ON""")
+        query.clear()
+        query.exec_("CREATE TABLE candidatos ("
+                    "candidatos_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    "sustituto_id INTEGER, "
+                    "turno TEXT, "
+                    "FOREIGN KEY(sustituto_id) REFERENCES personal(personal_id))")        
     return True
