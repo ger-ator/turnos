@@ -123,7 +123,8 @@ class Gestion(GestionBase, GestionUI):
             self.necesidades_view.resizeColumnsToContents()
 
     def necesidades_clicked(self, index):
-        necesidad_id = index.sibling(index.row(), self.model.fieldIndex("sustituto_id"))#Columna de asignado
+        necesidad_id = index.sibling(index.row(),
+                                     self.model.fieldIndex("sustituto_id"))
         query = QSqlQuery()        
         query.prepare("SELECT nombre, apellido1, apellido2 "
                       "FROM personal "
