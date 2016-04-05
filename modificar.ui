@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Eliminar necesidad de sustitución</string>
+   <string>Modificar fechas de una baja</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="1">
