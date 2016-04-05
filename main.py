@@ -10,6 +10,7 @@ from PyQt5.QtSql import *
 import anadir_dialog
 import asignar_dialog
 import eliminar_dialog
+import modificar_dialog
 import imprimir_dialog
 import connection
 from trabajador import *
@@ -90,6 +91,7 @@ class Gestion(GestionBase, GestionUI):
         ####Asignacion de eventos               
         self.actionAnadir.triggered.connect(self.anadir_btn_clicked)
         self.actionEliminar.triggered.connect(self.eliminar_btn_clicked)
+        self.actionModificar.triggered.connect(self.modificar_btn_clicked)
         self.actionImprimir.triggered.connect(self.imprimir)
         self.actionVista_previa.triggered.connect(self.vista_previa)
         self.calendarWidget.clicked.connect(self.calendarWidget_clicked)
@@ -105,6 +107,12 @@ class Gestion(GestionBase, GestionUI):
 
     def anadir_btn_clicked(self):
         dlg = anadir_dialog.AnadirDialog(self)
+        if dlg.exec_():
+            self.model.select()
+            self.necesidades_view.resizeColumnsToContents()
+
+    def modificar_btn_clicked(self):
+        dlg = modificar_dialog.ModificarDialog(self)
         if dlg.exec_():
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()

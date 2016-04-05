@@ -87,10 +87,11 @@
    </property>
    <widget class="QMenu" name="menuHerramientas">
     <property name="title">
-     <string>Herramientas</string>
+     <string>Editar</string>
     </property>
     <addaction name="actionAnadir"/>
     <addaction name="actionEliminar"/>
+    <addaction name="actionModificar"/>
    </widget>
    <widget class="QMenu" name="menuArchivo">
     <property name="title">
@@ -118,6 +119,7 @@
    <addaction name="separator"/>
    <addaction name="actionAnadir"/>
    <addaction name="actionEliminar"/>
+   <addaction name="actionModificar"/>
   </widget>
   <action name="actionAnadir">
    <property name="icon">
@@ -174,6 +176,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionModificar">
+   <property name="icon">
+    <iconset>
+     <normaloff>iconos/editar.svg</normaloff>iconos/editar.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Modificar</string>
+   </property>
+   <property name="toolTip">
+    <string>Modificar fechas de la baja.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
    </property>
   </action>
  </widget>
