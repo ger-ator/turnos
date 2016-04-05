@@ -17,21 +17,39 @@ class EliminarDialog(EliminarDlgBase, EliminarDlgUI):
         EliminarDlgBase.__init__(self, parent)
         self.setupUi(self)
 
+        ##Configuracion del origen de datos
         self.model = QSqlQueryModel(self)
-
-        self.model.setQuery("SELECT bajas.baja_id, personal.nombre, personal.apellido1, "
-                            "personal.apellido2, bajas.inicio, bajas.final "
-                            "FROM bajas "
-                            "LEFT JOIN personal ON bajas.sustituido_id = personal.personal_id")
-
+        self.model = QSqlRelationalTableModel()
+        self.model.setTable("bajas")
+        self.model.setJoinMode(QSqlRelationalTableModel.InnerJoin)
+        self.model.setRelation(self.model.fieldIndex("sustituido_id"),
+                               QSqlRelation("personal",
+                                            "personal_id",
+                                            "nombre, apellido1, apellido2"))
         self.bajas_view.setModel(self.model)
-
-        self.bajas_view.hideColumn(0) ##Id
-
+        self.model.select()
+        self.bajas_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        ####
+        ##Configuracion visual de la tabla
+        self.bajas_view.hideColumn(self.model.fieldIndex("baja_id"))
+        self.model.setHeaderData(self.model.fieldIndex("nombre"),
+                                 Qt.Horizontal, "Nombre")
+        self.model.setHeaderData(self.model.fieldIndex("apellido1"),
+                                 Qt.Horizontal, "Primer Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("apellido2"),
+                                 Qt.Horizontal, "Segundo Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("inicio"),
+                                 Qt.Horizontal, "Desde")
+        self.model.setHeaderData(self.model.fieldIndex("final"),
+                                 Qt.Horizontal, "Hasta")
+        self.model.setHeaderData(self.model.fieldIndex("motivo"),
+                                 Qt.Horizontal, "Motivo")
         self.bajas_view.resizeColumnsToContents()
-
+        ####
+        ##Asignacion de eventos
         self.buttonBox.accepted.connect(self.buttonBox_OK)
         self.bajas_view.doubleClicked.connect(self.bajas_dclicked)
+        ####
 
     def buttonBox_OK(self):
         fila = self.bajas_view.selectedIndexes()
@@ -43,7 +61,8 @@ class EliminarDialog(EliminarDlgBase, EliminarDlgUI):
             self.bajas_dclicked(fila[0])
             
     def bajas_dclicked(self, index):
-        bajas_id = index.sibling(index.row(),0)
+        bajas_id = index.sibling(index.row(),
+                                 self.model.fieldIndex("baja_id"))
         query = QSqlQuery()
         query.prepare("DELETE FROM sustituciones WHERE baja_id = ?")
         query.addBindValue(bajas_id.data())

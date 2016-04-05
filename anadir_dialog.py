@@ -22,21 +22,41 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
         self.final_dedit.setDate(QDate.currentDate())
         self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Apellido1',
                                    'Apellido2', 'Equipo', 'Puesto'])
+        self.motivo_cbox.addItems(['Baja medica', 'Formacion', 'Combustible',
+                                   'Otros'])
 
+        ##Configuracion del origen de datos
         self.model = QSqlTableModel(self)
         self.model.setTable("personal")
         self.model.select()
         self.resultado_view.setModel(self.model)
-        self.resultado_view.hideColumn(0) ##Id
-        self.resultado_view.hideColumn(6) ##Unidad
+        self.resultado_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        ####
+        ####Configuracion visual de la tabla
+        self.resultado_view.hideColumn(self.model.fieldIndex("personal_id"))
+        self.resultado_view.hideColumn(self.model.fieldIndex("unidad"))
+        self.model.setHeaderData(self.model.fieldIndex("siglas"),
+                                 Qt.Horizontal, "Siglas")
+        self.model.setHeaderData(self.model.fieldIndex("nombre"),
+                                 Qt.Horizontal, "Nombre")
+        self.model.setHeaderData(self.model.fieldIndex("apellido1"),
+                                 Qt.Horizontal, "Primer Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("apellido2"),
+                                 Qt.Horizontal, "Segundo Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("puesto"),
+                                 Qt.Horizontal, "Puesto")
+        self.model.setHeaderData(self.model.fieldIndex("equipo"),
+                                 Qt.Horizontal, "Equipo")
         self.resultado_view.resizeColumnsToContents()
-
+        ####
+        ##Asignacion de eventos
         self.buscar_ledit.textEdited.connect(self.buscar_text_edited)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
+        ####
 
     def buscar_text_edited(self):
         self.model.setFilter("{0} = '{1}'".format(self.filtro_cbox.currentText().lower(),
-                                                        self.buscar_ledit.text()))
+                                                  self.buscar_ledit.text()))
 
     def buttonBox_OK(self):
         ##No estaria mal añadir un selectedmodel y
@@ -50,11 +70,12 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
             QMessageBox.warning(self, "Error", "La fecha de inicio es posterior a la de fin")
             return False
         else:
-            trabajador_id = fila[0].sibling(fila[0].row(), 0)
+            trabajador_id = fila[0].sibling(fila[0].row(),
+                                            self.model.fieldIndex("personal_id"))
             baja = Baja(trabajador_id.data(),
                         self.inicio_dedit.date(),
                         self.final_dedit.date(),
-                        "Baja medica")
+                        self.motivo_cbox.currentText())
             self.accept()
             
 #######################################################################################

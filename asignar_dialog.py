@@ -20,58 +20,49 @@ class AsignarDialog(AsignarDlgBase, AsignarDlgUI):
         
         self.a_cubrir = Sustitucion(sustitucion_id)
 
-        ##ÑAPA PARA ORDENAR POR LISTA
-        ##SQLITE NO SOPORTA ORDER BY FIELD
-        ##CREO UNA TABLA TEMPORAL E INSERTO EN ORDEN
-        ##LUEGO HAGO UN ORDER BY Id
-        ##YA LA APROVECHO PARA METER EL TURNO DEL CANDIDATO
-        ##Y NO COMPICAR MAS LAS QUERYS
+        ##METER UN CAMPO DE PRIORIDAD EN TABLA CANDIDATOS Y GESTIONAR DESDE LA CLASE
+        ##POR EL MOMENTO ASI FUNCIONA
         query = QSqlQuery()
-        query.exec_("DROP TABLE temporal")
-        query.exec_("CREATE TABLE temporal ("
-                    "temporal_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    "turno TEXT, "
-                    "sustituto_id INTEGER)")
+        query.exec_("DELETE FROM candidatos")
         for i in self.a_cubrir.getListaCandidatos():
-            query.prepare("INSERT INTO temporal (sustituto_id, turno) "
+            query.prepare("INSERT INTO candidatos (sustituto_id, turno) "
                           "VALUES (?, ?)")
             query.addBindValue(i.getId())
             query.addBindValue(i.getTurno(self.a_cubrir.getFecha()).value)
             query.exec_()
+        ####
 
-        querystr = ("SELECT personal.personal_id, personal.nombre, "
-                    "personal.apellido1, personal.apellido2, "
-                    "personal.puesto, personal.unidad, temporal.turno "
-                    "FROM temporal "
-                    "LEFT JOIN personal ON temporal.sustituto_id = personal.personal_id "
-                    "ORDER BY temporal.temporal_id ASC")
-        self.model = QSqlQueryModel(self)
-        self.model.setQuery(querystr)
+        ##Configuro origen de datos
+        self.model = QSqlRelationalTableModel()
+        self.model.setTable("candidatos")
+        self.model.setRelation(self.model.fieldIndex("sustituto_id"),
+                               QSqlRelation("personal",
+                                            "personal_id",
+                                            "personal_id, nombre, apellido1, apellido2, puesto, unidad"))
+        self.model.select()
         self.sustitutos_view.setModel(self.model)
+        self.sustitutos_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        ####
+        ##Configuracion visual de la tabla
+        self.sustitutos_view.hideColumn(self.model.fieldIndex("candidatos_id"))
+        self.sustitutos_view.hideColumn(self.model.fieldIndex("personal_id"))
+        self.model.setHeaderData(self.model.fieldIndex("nombre"),
+                                 Qt.Horizontal, "Nombre")
+        self.model.setHeaderData(self.model.fieldIndex("apellido1"),
+                                 Qt.Horizontal, "Primer Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("apellido2"),
+                                 Qt.Horizontal, "Segundo Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("puesto"),
+                                 Qt.Horizontal, "Puesto")
+        self.model.setHeaderData(self.model.fieldIndex("unidad"),
+                                 Qt.Horizontal, "Unidad")
+        self.model.setHeaderData(self.model.fieldIndex("turno"),
+                                 Qt.Horizontal, "Turno")
         self.sustitutos_view.resizeColumnsToContents()
-        self.sustitutos_view.hideColumn(0) ##Id
-        
-##        sustitutos_id = [str(i.getId()) for i in self.a_cubrir.getListaCandidatos()]
-##            
-##        
-##        self.model = QSqlRelationalTableModel()
-##        self.model.setTable("personal")
-##        self.model.setFilter("personal_id IN ({0})".format(", ".join(sustitutos_id)))
-##        self.model.setRelation(self.model.fieldIndex("baja_id"),
-##                               QSqlRelation("personal",
-##                                            "personal_id",
-##                                            "nombre, apellido1, apellido2, puesto, unidad"))
-##        self.model.setSort("CASE")
-##        self.sustitutos_view.setModel(self.model)
-##ORDER BY 
-##  CASE turno
-##    WHEN 'reten' THEN 0
-##    WHEN 'oficina' THEN 1
-##    WHEN 'descanso' THEN 2
-##  END
-
+        ##Asignacion de eventos
         self.buttonBox.accepted.connect(self.buttonBox_OK)
         self.sustitutos_view.doubleClicked.connect(self.sustitutos_dclicked)
+        ####
 
     def buttonBox_OK(self):
         fila = self.sustitutos_view.selectedIndexes()
@@ -83,9 +74,10 @@ class AsignarDialog(AsignarDlgBase, AsignarDlgUI):
             self.sustitutos_dclicked(fila[0])
             
     def sustitutos_dclicked(self, index):
-        trabajador_id = index.sibling(index.row(),0)
+        trabajador_id = index.sibling(index.row(),
+                                      self.model.fieldIndex("personal_id"))
         self.a_cubrir.asignaCandidato(trabajador_id.data())
-        self.accept()        
+        self.accept()
             
 #######################################################################################
 if __name__ == '__main__':

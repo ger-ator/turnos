@@ -24,6 +24,7 @@ class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
         self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Apellido1',
                                    'Apellido2', 'Equipo', 'Puesto'])
 
+        ##Configuracion del origen de datos
         self.model = QSqlRelationalTableModel(self)
         self.model.setTable("bajas")
         self.model.setJoinMode(QSqlRelationalTableModel.InnerJoin)
@@ -33,16 +34,38 @@ class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
                                             "siglas, nombre, apellido1, apellido2, puesto, unidad"))
         self.model.select()
         self.bajas_view.setModel(self.model)
-        self.bajas_view.hideColumn(0) ##Id
-        self.bajas_view.resizeColumnsToContents()
+        self.bajas_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.sel_model = QItemSelectionModel(self.model)
         self.bajas_view.setSelectionModel(self.sel_model)
-
+        ####
+        ##Configuracion visual de la tabla
+        self.bajas_view.hideColumn(self.model.fieldIndex("baja_id"))
+        self.bajas_view.hideColumn(self.model.fieldIndex("siglas"))
+        self.model.setHeaderData(self.model.fieldIndex("nombre"),
+                                 Qt.Horizontal, "Nombre")
+        self.model.setHeaderData(self.model.fieldIndex("apellido1"),
+                                 Qt.Horizontal, "Primer Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("apellido2"),
+                                 Qt.Horizontal, "Segundo Apellido")
+        self.model.setHeaderData(self.model.fieldIndex("puesto"),
+                                 Qt.Horizontal, "Puesto")
+        self.model.setHeaderData(self.model.fieldIndex("unidad"),
+                                 Qt.Horizontal, "Unidad")
+        self.model.setHeaderData(self.model.fieldIndex("motivo"),
+                                 Qt.Horizontal, "Motivo")
+        self.model.setHeaderData(self.model.fieldIndex("inicio"),
+                                 Qt.Horizontal, "Desde")
+        self.model.setHeaderData(self.model.fieldIndex("final"),
+                                 Qt.Horizontal, "Hasta")
+        self.bajas_view.resizeColumnsToContents()
+        ####
+        ##Asignacion de eventos
         self.buscar_ledit.textEdited.connect(self.buscar_text_edited)
         if VistaPrevia:
             self.buttonBox.accepted.connect(self.buttonBox_OK_vistaprevia)
         else:
             self.buttonBox.accepted.connect(self.buttonBox_OK_imprimir)
+        ####
 
     def buscar_text_edited(self):
         self.model.setFilter("{0} = '{1}'".format(self.filtro_cbox.currentText().lower(),
