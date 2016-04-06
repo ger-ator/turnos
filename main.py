@@ -101,19 +101,19 @@ class Gestion(GestionBase, GestionUI):
 
     def eliminar_btn_clicked(self):
         dlg = eliminar_dialog.EliminarDialog(self)
-        if dlg.exec_():
+        if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
 
     def anadir_btn_clicked(self):
         dlg = anadir_dialog.AnadirDialog(self)
-        if dlg.exec_():
+        if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
 
     def modificar_btn_clicked(self):
         dlg = modificar_dialog.ModificarDialog(self)
-        if dlg.exec_():
+        if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
 
@@ -126,7 +126,7 @@ class Gestion(GestionBase, GestionUI):
     def necesidades_dclicked(self, index):
         necesidad_id = index.sibling(index.row(),0)        
         dlg = asignar_dialog.AsignarDialog(necesidad_id.data())
-        if dlg.exec_():
+        if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
 
@@ -143,15 +143,12 @@ class Gestion(GestionBase, GestionUI):
         self.asignado_ledit.setText(" ".join(str(query.value(i)) for i in range(3)))
     
     def imprimir(self):
-        dlg = imprimir_dialog.ImprimirDialog(VistaPrevia = False)
-        if not dlg.exec_() == QDialog.Accepted:
-            print("Error al imprimir.")
+        dlg = imprimir_dialog.ImprimirDialog(self)
+        dlg.exec_()        
 
     def vista_previa(self):
-        dlg = imprimir_dialog.ImprimirDialog(VistaPrevia = True)
-        if not dlg.exec_() == QDialog.Accepted:
-            print("Error al generar vista previa.")
-
+        dlg = imprimir_dialog.VistaPreviaDialog(self)
+        dlg.exec_()
         
 ###############################################################################3
 if __name__ == '__main__':

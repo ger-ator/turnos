@@ -46,19 +46,29 @@ class EliminarDialog(EliminarDlgBase, EliminarDlgUI):
                                  Qt.Horizontal, "Motivo")
         self.bajas_view.resizeColumnsToContents()
         ####
+        ##Inhabilito OK en buttonbox
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        ####
         ##Asignacion de eventos
         self.buttonBox.accepted.connect(self.buttonBox_OK)
         self.bajas_view.doubleClicked.connect(self.bajas_dclicked)
+        self.bajas_view.clicked.connect(self.bajas_clicked)
         ####
 
     def buttonBox_OK(self):
-        fila = self.bajas_view.selectedIndexes()
-     
-        if fila == []:
-            QMessageBox.warning(self, "Error", "No has seleccionado ninguna baja.")
-            return False
-        else:
-            self.bajas_dclicked(fila[0])
+        query = QSqlQuery()
+        query.prepare("DELETE FROM sustituciones WHERE baja_id = ?")
+        query.addBindValue(self.bajas_id.data())
+        query.exec_()
+        query.prepare("DELETE FROM bajas WHERE baja_id = ?")
+        query.addBindValue(self.bajas_id.data())
+        query.exec_()
+        self.accept()
+
+    def bajas_clicked(self, index):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+        self.bajas_id = index.sibling(index.row(),
+                                      self.model.fieldIndex("baja_id"))
             
     def bajas_dclicked(self, index):
         bajas_id = index.sibling(index.row(),
