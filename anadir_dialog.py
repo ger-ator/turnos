@@ -31,6 +31,8 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
         self.model.select()
         self.resultado_view.setModel(self.model)
         self.resultado_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.sel_model = self.resultado_view.selectionModel()
+        self.encabezado = self.resultado_view.horizontalHeader()
         ####
         ####Configuracion visual de la tabla
         self.resultado_view.hideColumn(self.model.fieldIndex("personal_id"))
@@ -53,19 +55,15 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
         ####
         ##Asignacion de eventos
+        self.sel_model.selectionChanged.connect(self.seleccionCambiada)
         self.buscar_ledit.textEdited.connect(self.buscar_text_edited)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
-        self.resultado_view.clicked.connect(self.resultado_clicked)
+        self.encabezado.sectionClicked.connect(self.encabezado_clicked)
         ####
 
     def buscar_text_edited(self):
-        self.model.setFilter("{0} = '{1}'".format(self.filtro_cbox.currentText().lower(),
-                                                  self.buscar_ledit.text()))
-
-    def resultado_clicked(self, index):
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
-        self.trabajador_id = index.sibling(index.row(),
-                                           self.model.fieldIndex("personal_id"))
+            self.model.setFilter("{0} LIKE '{1}%'".format(self.filtro_cbox.currentText().lower(),
+                                                          self.buscar_ledit.text()))
 
     def buttonBox_OK(self):
         if self.inicio_dedit.date() > self.final_dedit.date():
@@ -77,6 +75,18 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
                         self.final_dedit.date(),
                         self.motivo_cbox.currentText())
             self.accept()
+
+    def encabezado_clicked(self):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+
+    def seleccionCambiada(self, selected, deselected):
+        if selected.isEmpty():
+            self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+            indices = selected.indexes()
+            self.trabajador_id = indices[0].sibling(indices[0].row(),
+                                                    self.model.fieldIndex("personal_id"))
             
 #######################################################################################
 if __name__ == '__main__':

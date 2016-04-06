@@ -39,7 +39,8 @@ class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
         ####
         ##Configuracion visual de la tabla
         self.bajas_view.hideColumn(self.model.fieldIndex("baja_id"))
-        self.bajas_view.hideColumn(self.model.fieldIndex("siglas"))
+        self.model.setHeaderData(self.model.fieldIndex("siglas"),
+                                 Qt.Horizontal, "Siglas")
         self.model.setHeaderData(self.model.fieldIndex("nombre"),
                                  Qt.Horizontal, "Nombre")
         self.model.setHeaderData(self.model.fieldIndex("apellido1"),
@@ -68,8 +69,8 @@ class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
         ####
 
     def buscar_text_edited(self):
-        self.model.setFilter("{0} = '{1}'".format(self.filtro_cbox.currentText().lower(),
-                                                        self.buscar_ledit.text()))
+        self.model.setFilter("{0} LIKE '{1}%'".format(self.filtro_cbox.currentText().lower(),
+                                                      self.buscar_ledit.text()))
         
     def bajas_clicked(self, index):
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
