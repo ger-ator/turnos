@@ -56,31 +56,29 @@ class EliminarDialog(EliminarDlgBase, EliminarDlgUI):
         ####
 
     def buttonBox_OK(self):
-        query = QSqlQuery()
-        query.prepare("DELETE FROM sustituciones WHERE baja_id = ?")
-        query.addBindValue(self.bajas_id.data())
-        query.exec_()
-        query.prepare("DELETE FROM bajas WHERE baja_id = ?")
-        query.addBindValue(self.bajas_id.data())
-        query.exec_()
+        self.borrar_baja(self.baja_id.data())
         self.accept()
 
     def bajas_clicked(self, index):
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
-        self.bajas_id = index.sibling(index.row(),
-                                      self.model.fieldIndex("baja_id"))
+        self.baja_id = index.sibling(index.row(),
+                                     self.model.fieldIndex("baja_id"))
             
     def bajas_dclicked(self, index):
-        bajas_id = index.sibling(index.row(),
-                                 self.model.fieldIndex("baja_id"))
+        baja_id = index.sibling(index.row(),
+                                self.model.fieldIndex("baja_id"))
+        self.borrar_baja(baja_id.data())
+        self.accept()
+
+    def borrar_baja(self, bajaid):
+        ##ESTO LO DEBERIA METER EN LA CLASE BAJA
         query = QSqlQuery()
         query.prepare("DELETE FROM sustituciones WHERE baja_id = ?")
-        query.addBindValue(bajas_id.data())
+        query.addBindValue(bajaid)
         query.exec_()
         query.prepare("DELETE FROM bajas WHERE baja_id = ?")
-        query.addBindValue(bajas_id.data())
+        query.addBindValue(bajaid)
         query.exec_()
-        self.accept()    
             
 #######################################################################################
 if __name__ == '__main__':
