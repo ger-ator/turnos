@@ -31,6 +31,8 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
         self.model.select()
         self.resultado_view.setModel(self.model)
         self.resultado_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.sel_model = self.resultado_view.selectionModel()
+        self.encabezado = self.resultado_view.horizontalHeader()
         ####
         ####Configuracion visual de la tabla
         self.resultado_view.hideColumn(self.model.fieldIndex("personal_id"))
@@ -49,34 +51,42 @@ class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
                                  Qt.Horizontal, "Equipo")
         self.resultado_view.resizeColumnsToContents()
         ####
+        ##Inhabilito OK en buttonbox
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        ####
         ##Asignacion de eventos
+        self.sel_model.selectionChanged.connect(self.seleccionCambiada)
         self.buscar_ledit.textEdited.connect(self.buscar_text_edited)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
+        self.encabezado.sectionClicked.connect(self.encabezado_clicked)
         ####
 
     def buscar_text_edited(self):
-        self.model.setFilter("{0} = '{1}'".format(self.filtro_cbox.currentText().lower(),
-                                                  self.buscar_ledit.text()))
+            self.model.setFilter("{0} LIKE '{1}%'".format(self.filtro_cbox.currentText().lower(),
+                                                          self.buscar_ledit.text()))
 
     def buttonBox_OK(self):
-        ##No estaria mal añadir un selectedmodel y
-        ##seleccionar por row como con el dialogo de imprimir
-        fila = self.resultado_view.selectedIndexes()
-        
-        if fila == []:
-            QMessageBox.warning(self, "Error", "No has seleccionado ningun trabajador")
-            return False
-        elif self.inicio_dedit.date() > self.final_dedit.date():
+        if self.inicio_dedit.date() > self.final_dedit.date():
             QMessageBox.warning(self, "Error", "La fecha de inicio es posterior a la de fin")
             return False
         else:
-            trabajador_id = fila[0].sibling(fila[0].row(),
-                                            self.model.fieldIndex("personal_id"))
-            baja = Baja(trabajador_id.data(),
+            baja = Baja(self.trabajador_id.data(),
                         self.inicio_dedit.date(),
                         self.final_dedit.date(),
                         self.motivo_cbox.currentText())
             self.accept()
+
+    def encabezado_clicked(self):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+
+    def seleccionCambiada(self, selected, deselected):
+        if selected.isEmpty():
+            self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+            indices = selected.indexes()
+            self.trabajador_id = indices[0].sibling(indices[0].row(),
+                                                    self.model.fieldIndex("personal_id"))
             
 #######################################################################################
 if __name__ == '__main__':

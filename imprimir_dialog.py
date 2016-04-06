@@ -15,7 +15,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 ImprimirDlgUI, ImprimirDlgBase = uic.loadUiType(os.path.join(path, 'imprimir.ui'))
 
 class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
-    def __init__(self, parent = None, VistaPrevia = True):
+    def __init__(self, parent = None):
         ImprimirDlgBase.__init__(self, parent)
         self.setupUi(self)
 
@@ -35,12 +35,12 @@ class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
         self.model.select()
         self.bajas_view.setModel(self.model)
         self.bajas_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.sel_model = QItemSelectionModel(self.model)
-        self.bajas_view.setSelectionModel(self.sel_model)
+        self.sel_model = self.bajas_view.selectionModel()
         ####
         ##Configuracion visual de la tabla
         self.bajas_view.hideColumn(self.model.fieldIndex("baja_id"))
-        self.bajas_view.hideColumn(self.model.fieldIndex("siglas"))
+        self.model.setHeaderData(self.model.fieldIndex("siglas"),
+                                 Qt.Horizontal, "Siglas")
         self.model.setHeaderData(self.model.fieldIndex("nombre"),
                                  Qt.Horizontal, "Nombre")
         self.model.setHeaderData(self.model.fieldIndex("apellido1"),
@@ -59,43 +59,31 @@ class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
                                  Qt.Horizontal, "Hasta")
         self.bajas_view.resizeColumnsToContents()
         ####
+        ##Inhabilito OK en buttonbox
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        ####
         ##Asignacion de eventos
         self.buscar_ledit.textEdited.connect(self.buscar_text_edited)
-        if VistaPrevia:
-            self.buttonBox.accepted.connect(self.buttonBox_OK_vistaprevia)
-        else:
-            self.buttonBox.accepted.connect(self.buttonBox_OK_imprimir)
+        self.buttonBox.accepted.connect(self.buttonBox_OK)
+        self.bajas_view.clicked.connect(self.bajas_clicked)
         ####
 
     def buscar_text_edited(self):
-        self.model.setFilter("{0} = '{1}'".format(self.filtro_cbox.currentText().lower(),
-                                                        self.buscar_ledit.text()))
+        self.model.setFilter("{0} LIKE '{1}%'".format(self.filtro_cbox.currentText().lower(),
+                                                      self.buscar_ledit.text()))
         
+    def bajas_clicked(self, index):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
 
     def getBajasId(self):
         filas_sel = self.sel_model.selectedRows()
-        baja_id = []
-        
-        if filas_sel == []:
-            QMessageBox.warning(self, "Error", "No has seleccionado ninguna baja")
-            return False
-        else:
-            for fila in filas_sel:
-                baja_id.append(fila.sibling(fila.row(), 0).data())
-        return baja_id
+        return [fila.sibling(fila.row(), 0).data() for fila in filas_sel]
 
-    def buttonBox_OK_imprimir(self):
+    def buttonBox_OK(self):
         dialog = QPrintDialog()
         dialog.printer().setOrientation(QPrinter.Landscape)
         if dialog.exec_() == QDialog.Accepted:
             self.handlePaintRequest(dialog.printer())
-        self.accept()
-
-    def buttonBox_OK_vistaprevia(self):
-        dialog = QPrintPreviewDialog()
-        dialog.printer().setOrientation(QPrinter.Landscape)
-        dialog.paintRequested.connect(self.handlePaintRequest)
-        dialog.exec_()
         self.accept()
 
     def handlePaintRequest(self, printer):
@@ -174,6 +162,14 @@ class ImprimirDialog(ImprimirDlgBase, ImprimirDlgUI):
                             cursor.movePosition(QTextCursor.NextCell)
         
         documento.print_(printer)
+
+class VistaPreviaDialog(ImprimirDialog):
+    def buttonBox_OK(self):
+        dialog = QPrintPreviewDialog()
+        dialog.printer().setOrientation(QPrinter.Landscape)
+        dialog.paintRequested.connect(self.handlePaintRequest)
+        dialog.exec_()
+        self.accept()
             
 #######################################################################################
 if __name__ == '__main__':

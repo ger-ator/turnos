@@ -59,22 +59,26 @@ class AsignarDialog(AsignarDlgBase, AsignarDlgUI):
         self.model.setHeaderData(self.model.fieldIndex("turno"),
                                  Qt.Horizontal, "Turno")
         self.sustitutos_view.resizeColumnsToContents()
+        ##Inhabilito OK en buttonbox
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        ####
         ##Asignacion de eventos
         self.buttonBox.accepted.connect(self.buttonBox_OK)
         self.sustitutos_view.doubleClicked.connect(self.sustitutos_dclicked)
+        self.sustitutos_view.clicked.connect(self.sustitutos_clicked)
         ####
 
     def buttonBox_OK(self):
-        fila = self.sustitutos_view.selectedIndexes()
-     
-        if fila == []:
-            QMessageBox.warning(self, "Error", "No has seleccionado ningun trabajador")
-            return False
-        else:
-            self.sustitutos_dclicked(fila[0])
+        self.a_cubrir.asignaCandidato(self.trabajador_id.data())
+        self.accept()
+
+    def sustitutos_clicked(self, index):
+        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+        self.trabajador_id = index.sibling(index.row(),
+                                           self.model.fieldIndex("personal_id"))
             
     def sustitutos_dclicked(self, index):
-        trabajador_id = index.sibling(index.row(),
+        self.trabajador_id = index.sibling(index.row(),
                                       self.model.fieldIndex("personal_id"))
         self.a_cubrir.asignaCandidato(trabajador_id.data())
         self.accept()
@@ -84,7 +88,7 @@ if __name__ == '__main__':
     app = QApplication([])
     if not createConnection():
         sys.exit(1)
-    dlg = AsignarDialog(1)
+    dlg = AsignarDialog(60)
     dlg.show()
     app.exec_()
 ##    if dlg.exec_():
