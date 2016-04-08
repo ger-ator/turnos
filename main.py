@@ -9,9 +9,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtSql import *
 import anadir_dialog
 import asignar_dialog
-import eliminar_dialog
-import modificar_dialog
-import imprimir_dialog
+import baja_dialog
 import connection
 from trabajador import *
 
@@ -100,7 +98,7 @@ class Gestion(GestionBase, GestionUI):
         ####
 
     def eliminar_btn_clicked(self):
-        dlg = eliminar_dialog.EliminarDialog(self)
+        dlg = baja_dialog.EliminarBajaDialog(self)
         if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
@@ -112,7 +110,7 @@ class Gestion(GestionBase, GestionUI):
             self.necesidades_view.resizeColumnsToContents()
 
     def modificar_btn_clicked(self):
-        dlg = modificar_dialog.ModificarDialog(self)
+        dlg = baja_dialog.ModificarBajaDialog(self)
         if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
@@ -143,11 +141,11 @@ class Gestion(GestionBase, GestionUI):
         self.asignado_ledit.setText(" ".join(str(query.value(i)) for i in range(3)))
     
     def imprimir(self):
-        dlg = imprimir_dialog.ImprimirDialog(self)
+        dlg = baja_dialog.ImprimirBajaDialog(self)
         dlg.exec_()        
 
     def vista_previa(self):
-        dlg = imprimir_dialog.VistaPreviaDialog(self)
+        dlg = baja_dialog.VistaPreviaBajaDialog(self)
         dlg.exec_()
         
 ###############################################################################3
