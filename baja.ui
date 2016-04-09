@@ -35,7 +35,7 @@
      <item row="0" column="1">
       <widget class="QComboBox" name="filtro_cbox">
        <property name="editable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -43,6 +43,9 @@
    </item>
    <item row="2" column="1">
     <widget class="QTableView" name="bajas_view">
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
      </property>
@@ -57,7 +60,7 @@
      </attribute>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="5" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -66,19 +69,6 @@
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
      <property name="centerButtons">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
-    <widget class="QDateEdit" name="mes_dedit">
-     <property name="currentSection">
-      <enum>QDateTimeEdit::MonthSection</enum>
-     </property>
-     <property name="displayFormat">
-      <string>MM/yyyy</string>
-     </property>
-     <property name="calendarPopup">
       <bool>false</bool>
      </property>
     </widget>
@@ -100,7 +90,7 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
+     <x>343</x>
      <y>390</y>
     </hint>
     <hint type="destinationlabel">

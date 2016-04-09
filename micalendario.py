@@ -7,7 +7,7 @@ from connection import *
 
 class MiCalendario(QCalendarWidget):
     def __init__(self,parent=None):
-        QCalendarWidget.__init__(self,parent)
+        super().__init__(parent)
 
     def paintCell(self, painter, rect, date):
         query = QSqlQuery()
@@ -21,7 +21,7 @@ class MiCalendario(QCalendarWidget):
         asignadas = query.value(1)
 
         if necesidades == 0 or date == self.selectedDate():
-            QCalendarWidget.paintCell(self, painter, rect, date)
+            super().paintCell(painter, rect, date)
         else:
             if necesidades > asignadas:
                 painter.save()

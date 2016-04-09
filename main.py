@@ -9,9 +9,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtSql import *
 import anadir_dialog
 import asignar_dialog
-import eliminar_dialog
-import modificar_dialog
-import imprimir_dialog
+import baja_dialog
 import connection
 from trabajador import *
 
@@ -21,11 +19,11 @@ GestionUI, GestionBase = uic.loadUiType(os.path.join(path, 'mainwindow.ui'))
 class MyDelegate(QStyledItemDelegate):
     ##El argumento columna indica la referencia para colorear rojo o verde
     def __init__(self, columna, parent=None, *args):
-        QStyledItemDelegate.__init__(self, parent, *args)
+        super().__init__(parent, *args)
         self.columna = columna
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, index)
+        super().paint(painter, option, index)
         painter.save()
         asignado = index.sibling(index.row(), self.columna)
         if asignado.data() == "":
@@ -45,7 +43,7 @@ class MyDelegate(QStyledItemDelegate):
 class Gestion(GestionBase, GestionUI):
 
     def __init__(self, parent = None):
-        GestionBase.__init__(self, parent)
+        super().__init__(parent)
         self.setupUi(self)
 
         ####Configuracion del origen de datos
@@ -100,7 +98,7 @@ class Gestion(GestionBase, GestionUI):
         ####
 
     def eliminar_btn_clicked(self):
-        dlg = eliminar_dialog.EliminarDialog(self)
+        dlg = baja_dialog.EliminarBajaDialog(self)
         if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
@@ -112,7 +110,7 @@ class Gestion(GestionBase, GestionUI):
             self.necesidades_view.resizeColumnsToContents()
 
     def modificar_btn_clicked(self):
-        dlg = modificar_dialog.ModificarDialog(self)
+        dlg = baja_dialog.ModificarBajaDialog(self)
         if dlg.exec_() == QDialog.Accepted:
             self.model.select()
             self.necesidades_view.resizeColumnsToContents()
@@ -143,11 +141,11 @@ class Gestion(GestionBase, GestionUI):
         self.asignado_ledit.setText(" ".join(str(query.value(i)) for i in range(3)))
     
     def imprimir(self):
-        dlg = imprimir_dialog.ImprimirDialog(self)
+        dlg = baja_dialog.ImprimirBajaDialog(self)
         dlg.exec_()        
 
     def vista_previa(self):
-        dlg = imprimir_dialog.VistaPreviaDialog(self)
+        dlg = baja_dialog.VistaPreviaBajaDialog(self)
         dlg.exec_()
         
 ###############################################################################3

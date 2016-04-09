@@ -15,7 +15,7 @@ AsignarDlgUI, AsignarDlgBase = uic.loadUiType(os.path.join(path, 'asignar.ui'))
 
 class AsignarDialog(AsignarDlgBase, AsignarDlgUI):
     def __init__(self, sustitucion_id, parent = None):
-        AsignarDlgBase.__init__(self, parent)
+        super().__init__(parent)
         self.setupUi(self)
         
         self.a_cubrir = Sustitucion(sustitucion_id)

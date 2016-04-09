@@ -15,7 +15,7 @@ AnadirDlgUI, AnadirDlgBase = uic.loadUiType(os.path.join(path, 'anadir.ui'))
 
 class AnadirDialog(AnadirDlgBase, AnadirDlgUI):
     def __init__(self, parent = None):
-        AnadirDlgBase.__init__(self, parent)
+        super().__init__(parent)
         self.setupUi(self)
 
         self.inicio_dedit.setDate(QDate.currentDate())
