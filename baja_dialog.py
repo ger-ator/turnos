@@ -17,7 +17,7 @@ BajaDlgUI, BajaDlgBase = uic.loadUiType(os.path.join(path, 'baja.ui'))
 
 class BajaDialog(BajaDlgBase, BajaDlgUI):
     def __init__(self, parent = None):
-        BajaDlgBase.__init__(self, parent)
+        super().__init__(parent)
         self.setupUi(self)
 
         ##Configuracion del origen de datos
@@ -80,7 +80,7 @@ class BajaDialog(BajaDlgBase, BajaDlgUI):
             
 class ImprimirBajaDialog(BajaDialog):
     def __init__(self, parent = None):
-        BajaDialog.__init__(self, parent)
+        super().__init__(parent)
         self.setWindowTitle("Seleccionar bajas a imprimir")
         self.mes_dedit = QDateEdit(self)
         self.mes_dedit.setCurrentSection(QDateTimeEdit.MonthSection)
@@ -184,7 +184,7 @@ class VistaPreviaBajaDialog(ImprimirBajaDialog):
 
 class EliminarBajaDialog(BajaDialog):
     def __init__(self, parent = None):
-        BajaDialog.__init__(self, parent)
+        super().__init__(parent)
         self.setWindowTitle("Seleccionar bajas a eliminar")
         
     def buttonBox_OK(self):
@@ -204,7 +204,7 @@ class EliminarBajaDialog(BajaDialog):
 
 class ModificarBajaDialog(BajaDialog):
     def __init__(self, parent = None):
-        BajaDialog.__init__(self, parent)
+        super().__init__(parent)
         self.bajas_view.setSelectionMode(QAbstractItemView.SingleSelection)
         self.setWindowTitle("Seleccionar baja a modificar")
         self.horizontalLayout = QHBoxLayout(self)

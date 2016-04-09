@@ -19,11 +19,11 @@ GestionUI, GestionBase = uic.loadUiType(os.path.join(path, 'mainwindow.ui'))
 class MyDelegate(QStyledItemDelegate):
     ##El argumento columna indica la referencia para colorear rojo o verde
     def __init__(self, columna, parent=None, *args):
-        QStyledItemDelegate.__init__(self, parent, *args)
+        super().__init__(parent, *args)
         self.columna = columna
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, index)
+        super().paint(painter, option, index)
         painter.save()
         asignado = index.sibling(index.row(), self.columna)
         if asignado.data() == "":
@@ -43,7 +43,7 @@ class MyDelegate(QStyledItemDelegate):
 class Gestion(GestionBase, GestionUI):
 
     def __init__(self, parent = None):
-        GestionBase.__init__(self, parent)
+        super().__init__(parent)
         self.setupUi(self)
 
         ####Configuracion del origen de datos

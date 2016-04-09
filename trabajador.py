@@ -69,7 +69,7 @@ class Trabajador(object):
 
 class Sustituido(Trabajador):
     def __init__(self, trabajadorid):
-        Trabajador.__init__(self, trabajadorid)
+        super().__init__(trabajadorid)
 
     def isPolivalente(self):
         if self.puesto == Puesto.OpPolivalente:
@@ -91,7 +91,7 @@ class Sustituido(Trabajador):
 
 class Candidato(Trabajador):
     def __init__(self, trabajadorid):
-        Trabajador.__init__(self, trabajadorid)
+        super().__init__(trabajadorid)
 
     def esta_de_baja(self, fecha):
         query = QSqlQuery()
@@ -167,7 +167,7 @@ class Candidato(Trabajador):
             query.first()
             return Turno(query.value(0))
         else:
-            return Trabajador.getTurno(self, fecha)     
+            return super().getTurno(fecha)     
 
 class Sustitucion(object):
     def __init__(self, *args):
