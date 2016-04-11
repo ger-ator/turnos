@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
  
-import os
-from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -11,11 +9,9 @@ from PyQt5.QtPrintSupport import *
 from connection import *
 from trabajador import *
 from baja import *
+from baja_ui import Ui_Dialog
 
-path = os.path.dirname(os.path.abspath(__file__))
-BajaDlgUI, BajaDlgBase = uic.loadUiType(os.path.join(path, 'baja.ui'))
-
-class BajaDialog(BajaDlgBase, BajaDlgUI):
+class BajaDialog(QDialog, Ui_Dialog):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setupUi(self)

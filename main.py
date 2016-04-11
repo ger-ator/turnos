@@ -1,20 +1,15 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-import os
-from PyQt5 import uic
+#!/usr/bin/python3
+import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtSql import *
+##from PyQt5.QtSql import *
 import anadir_dialog
 import asignar_dialog
 import baja_dialog
 import connection
 from trabajador import *
-
-path = os.path.dirname(os.path.abspath(__file__))
-GestionUI, GestionBase = uic.loadUiType(os.path.join(path, 'mainwindow.ui'))
+from mainwindow_ui import Ui_MainWindow
 
 class MyDelegate(QStyledItemDelegate):
     ##El argumento columna indica la referencia para colorear rojo o verde
@@ -40,8 +35,7 @@ class MyDelegate(QStyledItemDelegate):
             painter.drawText(option.rect, Qt.AlignCenter, index.data())            
         painter.restore()
 
-class Gestion(GestionBase, GestionUI):
-
+class Gestion(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setupUi(self)

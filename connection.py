@@ -58,10 +58,6 @@ def createConnection():
     db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
     db.setDatabaseName('operacion.db')
     if not db.open():
-        QtGui.QMessageBox.critical(None, QtGui.qApp.tr("No se pudo abrir la base de datos."),
-                QtGui.qApp.tr("Imposible establecer conexion.\n"
-                              "Pulsa Cancelar para salir."),
-                QtGui.QMessageBox.Cancel)
         return False
         
     if 'personal' not in db.tables():
