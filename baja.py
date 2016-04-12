@@ -1,13 +1,13 @@
-from PyQt5.QtSql import *
-from PyQt5.QtCore import *
-from trabajador import *
+from PyQt5 import QtSql, QtCore
+
+import trabajador
 
 class Baja(object):
     def __init__(self, *args):
         ##Si proporciono un solo argumento supongo que se
         ##quiere cargar datos del ID de la base de datos
         if len(args) == 1:
-            query = QSqlQuery()
+            query = QtSql.QSqlQuery()
             query.prepare("SELECT sustituido_id, inicio, final, motivo "
                           "FROM bajas "
                           "WHERE baja_id = ?")
@@ -18,9 +18,11 @@ class Baja(object):
             query.first()
             if query.isValid():
                 self.bajaid = args[0]
-                self.sustituido = Sustituido(query.value(0))
-                self.inicio = QDate.fromString(query.value(1), Qt.ISODate)
-                self.final = QDate.fromString(query.value(2), Qt.ISODate)
+                self.sustituido = trabajador.Sustituido(query.value(0))
+                self.inicio = QtCore.QDate.fromString(query.value(1),
+                                                      QtCore.Qt.ISODate)
+                self.final = QtCore.QDate.fromString(query.value(2),
+                                                     QtCore.Qt.ISODate)
                 self.motivo = query.value(3)
                 self.sustituciones = self.cargaSustituciones()
             else:
@@ -28,7 +30,7 @@ class Baja(object):
         ##Si proporciono 4 argumentos supongo que quiero crear una entrada
         ##en la base de datos, *args=(sustituido_id, inicio, final, motivo)
         elif len(args) == 4:
-            query = QSqlQuery()
+            query = QtSql.QSqlQuery()
             query.prepare("INSERT INTO bajas "
                           "(sustituido_id, inicio, final, motivo) "
                           "VALUES (?, ?, ?, ?)")
@@ -42,7 +44,7 @@ class Baja(object):
                 raise ValueError("Alguno de los argumentos no "
                                  "es valido para la base de datos.")            
             self.bajaid = query.lastInsertId()
-            self.sustituido = Sustituido(args[0])
+            self.sustituido = trabajador.Sustituido(args[0])
             self.inicio = args[1]
             self.final = args[2]
             self.motivo = args[3]
@@ -51,9 +53,10 @@ class Baja(object):
             raise RuntimeError("Error en numero de argumentos de Baja(*args).")
 
     def creaSustituciones(self):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         sustituciones = []
-        for turno in [Turno.manana, Turno.tarde, Turno.noche, Turno.reten]:
+        for turno in [trabajador.Turno.manana, trabajador.Turno.tarde,
+                      trabajador.Turno.noche, trabajador.Turno.reten]:
             query.prepare("SELECT fecha FROM calendario "
                           "WHERE ( fecha BETWEEN date(:inicio) AND date(:final) ) "
                           "AND ( {0} = :equipo ) "
@@ -65,16 +68,16 @@ class Baja(object):
 
             ##Inserto las necesidades de personal generadas por la baja
             while query.next():
-                tmp = Sustitucion(self.sustituido.getId(),
-                                  query.value(0),
-                                  turno,
-                                  self.bajaid)
+                tmp = trabajador.Sustitucion(self.sustituido.getId(),
+                                             query.value(0),
+                                             turno,
+                                             self.bajaid)
                 sustituciones.append(tmp)
         else:
             return sustituciones
 
     def cargaSustituciones(self):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         sustituciones = []
         query.prepare("SELECT sustitucion_id FROM sustituciones "
                       "WHERE baja_id = ?")
@@ -84,13 +87,13 @@ class Baja(object):
             print(query.lastError().text())
 
         while query.next():
-            tmp = Sustitucion(query.value(0))
+            tmp = trabajador.Sustitucion(query.value(0))
             sustituciones.append(tmp)
         else:
             return sustituciones
 
     def setInicio(self, fecha):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         query.prepare("UPDATE bajas "
                       "SET inicio = ? "
                       "WHERE baja_id = ?")
@@ -100,7 +103,7 @@ class Baja(object):
         self.inicio = fecha
 
     def setFinal(self, fecha):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         query.prepare("UPDATE bajas "
                       "SET final = ? "
                       "WHERE baja_id = ?")
@@ -110,7 +113,7 @@ class Baja(object):
         self.final = fecha
 
     def modificaSustituciones(self, inicio, final):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
 
         if inicio > self.inicio:
             query.prepare("DELETE FROM sustituciones "
@@ -122,7 +125,8 @@ class Baja(object):
             query.exec_()
             self.setInicio(inicio)            
         elif inicio < self.inicio:
-            for turno in [Turno.manana, Turno.tarde, Turno.noche, Turno.reten]:
+            for turno in [trabajador.Turno.manana, trabajador.Turno.tarde,
+                          trabajador.Turno.noche, trabajador.Turno.reten]:
                 query.prepare("SELECT fecha FROM calendario "
                               "WHERE ( fecha BETWEEN date(:nuevo_inicio) AND date(:inicio) ) "
                               "AND ( {0} = :equipo ) "
@@ -133,10 +137,10 @@ class Baja(object):
                 query.exec_()
                 ##Inserto las necesidades de personal generadas por la baja
                 while query.next():
-                    tmp = Sustitucion(self.sustituido.getId(),
-                                      query.value(0),
-                                      turno,
-                                      self.bajaid)
+                    tmp = trabajador.Sustitucion(self.sustituido.getId(),
+                                                 query.value(0),
+                                                 turno,
+                                                 self.bajaid)
                     ##A partir de aqui ya no tengo ordenadas las sustituciones.
                     ##Ver si me afecta en algo
                     self.sustituciones.append(tmp)
@@ -152,7 +156,8 @@ class Baja(object):
             query.exec_()
             self.setFinal(final)            
         elif final > self.final:
-            for turno in [Turno.manana, Turno.tarde, Turno.noche, Turno.reten]:
+            for turno in [trabajador.Turno.manana, trabajador.Turno.tarde,
+                          trabajador.Turno.noche, trabajador.Turno.reten]:
                 query.prepare("SELECT fecha FROM calendario "
                               "WHERE ( fecha BETWEEN date(:final) AND date(:nuevo_final) ) "
                               "AND ( {0} = :equipo ) "
@@ -163,10 +168,10 @@ class Baja(object):
                 query.exec_()
                 ##Inserto las necesidades de personal generadas por la baja
                 while query.next():
-                    tmp = Sustitucion(self.sustituido.getId(),
-                                      query.value(0),
-                                      turno,
-                                      self.bajaid)
+                    tmp = trabajador.Sustitucion(self.sustituido.getId(),
+                                                 query.value(0),
+                                                 turno,
+                                                 self.bajaid)
                     ##A partir de aqui ya no tengo ordenadas las sustituciones.
                     ##Ver si me afecta en algo
                     self.sustituciones.append(tmp)

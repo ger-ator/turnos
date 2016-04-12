@@ -1,12 +1,59 @@
-from PyQt5.QtSql import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from connection import *
+from PyQt5 import QtSql, QtCore
+from enum import Enum
+
+class Turno(Enum):
+    manana = "Mañana"
+    tarde = "Tarde"
+    noche = "Noche"
+    reten = "Retén"
+    oficina = "Oficina"
+    descanso = "Descanso"
+    vacaciones = "Vacaciones"
+    simulador = "Simulador"
+    sin_asignar = ""
+
+    def __sub__(self, turno):
+        if self is Turno.manana and turno is Turno.noche:
+            return 0
+        elif self is Turno.tarde and turno is Turno.manana:
+            return 0
+        elif self is Turno.noche and turno is Turno.tarde:
+            return 0
+        else:
+            return 8            
+
+class Puesto(Enum):
+    JTurno = "Jefe de Turno"
+    Supervisor = "Supervisor"
+    OpReactor =  "Operador de Reactor"
+    OpTurbina = "Operador de Turbina"
+    OpPolivalente = "Operador Polivalente"
+    Capataz = "Capataz"
+    AuxTurbina = "Auxiliar de Turbinas"
+    AuxAuxiliar = "Auxiliar de Auxiliar"
+    AuxSalvaguardias = "Auxiliar de Salvaguardias"
+    AuxExteriores = "Auxiliar de Exteriores"
+    AuxTratamiento = "Auxiliar de Tratamiento"
+
+class Unidad(Enum):
+    U1 = "1"
+    U2 = "2"
+    UX = "X"
+
+class Equipo(Enum):
+    equipo_1 = 1
+    equipo_2 = 2
+    equipo_3 = 3
+    equipo_4 = 4
+    equipo_5 = 5
+    equipo_6 = 6
+    equipo_7 = 7
+    equipo_8 = 8
 
 class Trabajador(object):
     def __init__(self, trabajadorid):
         if isinstance(trabajadorid, int):
-            query = QSqlQuery()
+            query = QtSql.QSqlQuery()
             query.prepare("SELECT nombre, apellido1, apellido2, "
                           "puesto, unidad, equipo FROM personal "
                           "WHERE personal_id = ?")
@@ -54,7 +101,7 @@ class Trabajador(object):
         return self.unidad.value
     
     def getTurno(self, fecha):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         query.prepare("SELECT {0} from calendario "
                       "WHERE fecha = ?".format(self.equipo.name))
         query.addBindValue(fecha)
@@ -94,7 +141,7 @@ class Candidato(Trabajador):
         super().__init__(trabajadorid)
 
     def esta_de_baja(self, fecha):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         query.prepare("SELECT sustituido_id FROM bajas "
                       "WHERE ( inicio <= date(:fecha) AND final >= date(:fecha) ) "
                       "AND sustituido_id = :sustituido_id")
@@ -110,7 +157,7 @@ class Candidato(Trabajador):
             return False
 
     def esta_sustituyendo(self, fecha):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         query.prepare("SELECT sustituto_id FROM sustituciones "
                       "WHERE fecha = ? AND sustituto_id = ?")
         query.addBindValue(fecha)
@@ -156,7 +203,7 @@ class Candidato(Trabajador):
 
     def getTurno(self, fecha):
         if self.esta_sustituyendo(fecha):
-            query = QSqlQuery()
+            query = QtSql.QSqlQuery()
             query.prepare("SELECT turno from sustituciones "
                           "WHERE fecha = ? AND sustituto_id = ?")
             query.addBindValue(fecha)
@@ -175,7 +222,7 @@ class Sustitucion(object):
         ##quiere cargar datos del ID de la base de datos
         if len(args) == 1:
             ##Obtener datos de la sustitucion de la base de datos.
-            query = QSqlQuery()
+            query = QtSql.QSqlQuery()
             query.prepare("SELECT sustituido_id, fecha, turno, baja_id "
                           "FROM sustituciones "
                           "WHERE sustitucion_id = ?")
@@ -187,7 +234,7 @@ class Sustitucion(object):
             if query.isValid():
                 self.sustitucionid = args[0]
                 self.sustituido = Sustituido(query.value(0))
-                self.fecha = QDate.fromString(query.value(1), "yyyy-MM-dd")
+                self.fecha = QtCore.QDate.fromString(query.value(1), "yyyy-MM-dd")
                 self.turno = Turno(query.value(2))
                 self.bajaid = query.value(3)
             else:
@@ -195,7 +242,7 @@ class Sustitucion(object):
         ##Si proporciono 4 argumentos supongo que quiero crear una entrada
         ##en la base de datos, *args=(sustituido_id, fecha, turno, baja_id)
         elif len(args) == 4:
-            query = QSqlQuery()
+            query = QtSql.QSqlQuery()
             query.prepare("INSERT INTO sustituciones "
                           "(sustituido_id, fecha, turno, baja_id) "
                           "VALUES (?, ?, ?, ?)")
@@ -217,7 +264,7 @@ class Sustitucion(object):
             raise RuntimeError("Error en numero de argumentos de Sustitucion(*args).")
 
     def getListaCandidatos(self):       
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         if self.sustituido.isPolivalente():
             query.prepare("SELECT personal_id "
                           "FROM personal "
@@ -316,7 +363,7 @@ class Sustitucion(object):
             ##query.exec_()            
         ##Si descansa 8 horas entre turnos
         else:
-            query = QSqlQuery()
+            query = QtSql.QSqlQuery()
             query.prepare("UPDATE sustituciones "
                           "SET sustituto_id = ? "
                           "WHERE sustitucion_id = ?")
@@ -326,8 +373,10 @@ class Sustitucion(object):
 
 #######################################################################################
 if __name__ == '__main__':
-    app = QApplication([])
-    if not createConnection():
+    from PyQt5 import QtCore, QtWidgets
+    import connection
+    app = QtWidgets.QApplication([])
+    if not connection.createConnection():
         sys.exit(1)
 
     Turno.manana - Turno.manana    

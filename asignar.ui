@@ -38,6 +38,9 @@
      </item>
      <item>
       <widget class="QTableView" name="sustitutos_view">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
        <property name="selectionMode">
         <enum>QAbstractItemView::SingleSelection</enum>
        </property>
