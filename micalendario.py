@@ -37,9 +37,10 @@ class MiCalendario(QtWidgets.QCalendarWidget):
 
 #######################################################################################
 if __name__ == '__main__':
-    from connection import *
+    import connection
     app = QtWidgets.QApplication([])
-    if not createConnection():
+    if not connection.createConnection():
+        import sys
         sys.exit(1)
     dlg = MiCalendario()
     dlg.show()

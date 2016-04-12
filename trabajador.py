@@ -377,22 +377,16 @@ if __name__ == '__main__':
     import connection
     app = QtWidgets.QApplication([])
     if not connection.createConnection():
+        import sys
         sys.exit(1)
 
-    Turno.manana - Turno.manana    
     ##Sustitucion(1)
     Candidato(1)
 ##    Sustitucion(1, QDate(2016, 3, 23), Turno.manana, 7)
-    
 ##    gmb = Trabajador(1)
-
-
 ##    gmb = Candidato(1, QDate(2016, 3, 22))
 ##    print (gmb.esta_de_baja(QDate(2016, 3, 22)))
-##
 ##    sustitucion = Necesidad(1)
-    
-    
     app.exec_()
 ##    if dlg.exec_():
 ##        print(dlg.getData())

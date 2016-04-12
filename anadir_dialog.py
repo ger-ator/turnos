@@ -87,9 +87,10 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
             
 #######################################################################################
 if __name__ == '__main__':
-    from connection import *
+    import connection
     app = QtWidgets.QApplication([])
-    if not createConnection():
+    if not connection.createConnection():
+        import sys
         sys.exit(1)
     dlg = AnadirDialog()
     dlg.show()
