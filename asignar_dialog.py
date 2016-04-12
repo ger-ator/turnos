@@ -1,19 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
  
-import os
-from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtSql import *
 from connection import *
 from trabajador import *
+from asignar_ui import Ui_Dialog
 
-path = os.path.dirname(os.path.abspath(__file__))
-AsignarDlgUI, AsignarDlgBase = uic.loadUiType(os.path.join(path, 'asignar.ui'))
-
-class AsignarDialog(AsignarDlgBase, AsignarDlgUI):
+class AsignarDialog(QDialog, Ui_Dialog):
     def __init__(self, sustitucion_id, parent = None):
         super().__init__(parent)
         self.setupUi(self)
@@ -88,7 +84,7 @@ if __name__ == '__main__':
     app = QApplication([])
     if not createConnection():
         sys.exit(1)
-    dlg = AsignarDialog(60)
+    dlg = AsignarDialog(81)
     dlg.show()
     app.exec_()
 ##    if dlg.exec_():
