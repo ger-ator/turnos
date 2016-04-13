@@ -13,8 +13,8 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
 
         self.inicio_dedit.setDate(QtCore.QDate.currentDate())
         self.final_dedit.setDate(QtCore.QDate.currentDate())
-        self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Apellido1',
-                                   'Apellido2', 'Equipo', 'Puesto'])
+        self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Primer Apellido',
+                                   'Segundo Apellido', 'Equipo', 'Puesto'])
         self.motivo_cbox.addItems(['Baja medica', 'Formacion', 'Combustible',
                                    'Otros'])
 
