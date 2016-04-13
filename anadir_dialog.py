@@ -1,93 +1,93 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
- 
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtSql import *
-from connection import *
-from baja import *
+from PyQt5 import QtCore, QtWidgets, QtSql
+
+import baja
+
 from anadir_ui import Ui_Dialog
 
-class AnadirDialog(QDialog, Ui_Dialog):
+class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setupUi(self)
 
-        self.inicio_dedit.setDate(QDate.currentDate())
-        self.final_dedit.setDate(QDate.currentDate())
+        self.inicio_dedit.setDate(QtCore.QDate.currentDate())
+        self.final_dedit.setDate(QtCore.QDate.currentDate())
         self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Apellido1',
                                    'Apellido2', 'Equipo', 'Puesto'])
         self.motivo_cbox.addItems(['Baja medica', 'Formacion', 'Combustible',
                                    'Otros'])
 
         ##Configuracion del origen de datos
-        self.model = QSqlTableModel(self)
-        self.model.setTable("personal")
-        self.model.select()
-        self.resultado_view.setModel(self.model)
-        self.resultado_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.model = QtSql.QSqlQueryModel(self)
+        self.populate_model()
+        self.proxy_model = QtCore.QSortFilterProxyModel(self)
+        self.proxy_model.setSourceModel(self.model)    
+        self.resultado_view.setModel(self.proxy_model)
         self.sel_model = self.resultado_view.selectionModel()
-        self.encabezado = self.resultado_view.horizontalHeader()
         ####
         ####Configuracion visual de la tabla
-        self.resultado_view.hideColumn(self.model.fieldIndex("personal_id"))
-        self.resultado_view.hideColumn(self.model.fieldIndex("unidad"))
-        self.model.setHeaderData(self.model.fieldIndex("siglas"),
-                                 Qt.Horizontal, "Siglas")
-        self.model.setHeaderData(self.model.fieldIndex("nombre"),
-                                 Qt.Horizontal, "Nombre")
-        self.model.setHeaderData(self.model.fieldIndex("apellido1"),
-                                 Qt.Horizontal, "Primer Apellido")
-        self.model.setHeaderData(self.model.fieldIndex("apellido2"),
-                                 Qt.Horizontal, "Segundo Apellido")
-        self.model.setHeaderData(self.model.fieldIndex("puesto"),
-                                 Qt.Horizontal, "Puesto")
-        self.model.setHeaderData(self.model.fieldIndex("equipo"),
-                                 Qt.Horizontal, "Equipo")
+        self.model.setHeaderData(0, QtCore.Qt.Horizontal, "Siglas")
+        self.model.setHeaderData(1, QtCore.Qt.Horizontal, "Nombre")
+        self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Primer Apellido")
+        self.model.setHeaderData(3, QtCore.Qt.Horizontal, "Segundo Apellido")
+        self.model.setHeaderData(4, QtCore.Qt.Horizontal, "Puesto")
+        self.resultado_view.hideColumn(5)##unidad
+        self.model.setHeaderData(6, QtCore.Qt.Horizontal, "Equipo")
+        self.resultado_view.hideColumn(7) ##personal_id
         self.resultado_view.resizeColumnsToContents()
         ####
         ##Inhabilito OK en buttonbox
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         ####
         ##Asignacion de eventos
         self.sel_model.selectionChanged.connect(self.seleccionCambiada)
-        self.buscar_ledit.textEdited.connect(self.buscar_text_edited)
+        self.buscar_ledit.textEdited.connect(self.filtro_text_edited)
+        self.filtro_cbox.currentIndexChanged.connect(self.proxy_model.setFilterKeyColumn)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
-        self.encabezado.sectionClicked.connect(self.encabezado_clicked)
         ####
 
-    def buscar_text_edited(self):
-            self.model.setFilter("{0} LIKE '{1}%'".format(self.filtro_cbox.currentText().lower(),
-                                                          self.buscar_ledit.text()))
+    def populate_model(self):
+        self.model.setQuery("SELECT siglas, nombre, apellido1, "
+                            "apellido2, puesto, unidad, equipo, "
+                            "personal_id "
+                            "FROM personal")
+        self.resultado_view.resizeColumnsToContents()
+
+    def filtro_text_edited(self, texto):
+        filtro = QtCore.QRegExp("^{0}".format(texto),
+                                QtCore.Qt.CaseInsensitive,
+                                QtCore.QRegExp.RegExp)
+        self.proxy_model.setFilterRegExp(filtro)
 
     def buttonBox_OK(self):
         if self.inicio_dedit.date() > self.final_dedit.date():
-            QMessageBox.warning(self, "Error", "La fecha de inicio es posterior a la de fin")
+            QtWidgets.QMessageBox.warning(self,
+                                          "Error",
+                                          "La fecha de inicio es "
+                                          "posterior a la de fin")
             return False
         else:
-            baja = Baja(self.trabajador_id.data(),
-                        self.inicio_dedit.date(),
-                        self.final_dedit.date(),
-                        self.motivo_cbox.currentText())
+            baja.Baja(self.trabajador_id.data(),
+                      self.inicio_dedit.date(),
+                      self.final_dedit.date(),
+                      self.motivo_cbox.currentText())
             self.accept()
-
-    def encabezado_clicked(self):
-        self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
 
     def seleccionCambiada(self, selected, deselected):
         if selected.isEmpty():
-            self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         else:
-            self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
             indices = selected.indexes()
-            self.trabajador_id = indices[0].sibling(indices[0].row(),
-                                                    self.model.fieldIndex("personal_id"))
+            self.trabajador_id = indices[0].sibling(indices[0].row(), 7)##personal_id
             
 #######################################################################################
 if __name__ == '__main__':
-    app = QApplication([])
-    if not createConnection():
+    import connection
+    app = QtWidgets.QApplication([])
+    if not connection.createConnection():
+        import sys
         sys.exit(1)
     dlg = AnadirDialog()
     dlg.show()

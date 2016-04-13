@@ -1,15 +1,11 @@
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtSql import *
-from connection import *
+from PyQt5 import QtSql, QtWidgets, QtCore, QtGui
 
-class MiCalendario(QCalendarWidget):
+class MiCalendario(QtWidgets.QCalendarWidget):
     def __init__(self,parent=None):
         super().__init__(parent)
 
     def paintCell(self, painter, rect, date):
-        query = QSqlQuery()
+        query = QtSql.QSqlQuery()
         query.prepare("SELECT COUNT(sustitucion_id), COUNT(sustituto_id) "
                       "FROM sustituciones "
                       "WHERE fecha = ?")
@@ -24,21 +20,27 @@ class MiCalendario(QCalendarWidget):
         else:
             if necesidades > asignadas:
                 painter.save()
-                painter.fillRect(rect, QBrush(QColor('red')))
-                painter.setPen(QColor('white'))
-                painter.drawText(rect, Qt.AlignCenter, str(date.day()))
+                rojo = QtGui.QColor('red')
+                blanco = QtGui.QColor('white')
+                painter.fillRect(rect, QtGui.QBrush(rojo))
+                painter.setPen(blanco)
+                painter.drawText(rect, QtCore.Qt.AlignCenter, str(date.day()))
                 painter.restore()
             else:
                 painter.save()
-                painter.fillRect(rect, QBrush(QColor('green')))
-                painter.setPen(QColor('white'))
-                painter.drawText(rect, Qt.AlignCenter, str(date.day()))
+                verde = QtGui.QColor('green')
+                blanco = QtGui.QColor('white')
+                painter.fillRect(rect, QtGui.QBrush(verde))
+                painter.setPen(blanco)
+                painter.drawText(rect, QtCore.Qt.AlignCenter, str(date.day()))
                 painter.restore()        
 
 #######################################################################################
 if __name__ == '__main__':
-    app = QApplication([])
-    if not createConnection():
+    import connection
+    app = QtWidgets.QApplication([])
+    if not connection.createConnection():
+        import sys
         sys.exit(1)
     dlg = MiCalendario()
     dlg.show()
