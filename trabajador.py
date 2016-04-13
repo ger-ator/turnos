@@ -39,6 +39,7 @@ class Unidad(Enum):
     U1 = "1"
     U2 = "2"
     UX = "X"
+    sin_asignar = ""
 
 class Equipo(Enum):
     equipo_1 = 1
@@ -49,6 +50,7 @@ class Equipo(Enum):
     equipo_6 = 6
     equipo_7 = 7
     equipo_8 = 8
+    sin_asignar = ""
 
 class Trabajador(object):
     def __init__(self, trabajadorid):
@@ -101,18 +103,23 @@ class Trabajador(object):
         return self.unidad.value
     
     def getTurno(self, fecha):
-        query = QtSql.QSqlQuery()
-        query.prepare("SELECT {0} from calendario "
-                      "WHERE fecha = ?".format(self.equipo.name))
-        query.addBindValue(fecha)
-        if not query.exec_():
-            print("Error al extraer el turno.")
-            print(query.lastError().text())
-        query.first()
-        if query.isValid():
-            return Turno(query.value(0))
+        ##ÑAPA PARA LA GENTE DE OFICINA
+        ##No tiene en cuenta fines de semana
+        if self.equipo == Equipo.sin_asignar:
+            return Turno.oficina
         else:
-            return Turno.sin_asignar
+            query = QtSql.QSqlQuery()
+            query.prepare("SELECT {0} from calendario "
+                          "WHERE fecha = ?".format(self.equipo.name))
+            query.addBindValue(fecha)
+            if not query.exec_():
+                print("Error al extraer el turno.")
+                print(query.lastError().text())
+            query.first()
+            if query.isValid():
+                return Turno(query.value(0))
+            else:
+                return Turno.sin_asignar
 
 class Sustituido(Trabajador):
     def __init__(self, trabajadorid):
