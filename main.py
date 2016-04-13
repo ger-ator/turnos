@@ -117,6 +117,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             self.populate_model()
 
     def necesidades_clicked(self, index):
+        ##VER COMO HAGO ESTO CON QDataWidgetMapper
         necesidad_id = index.sibling(index.row(), 8)##sustituto_id
         query = QtSql.QSqlQuery()        
         query.prepare("SELECT nombre, apellido1, apellido2 "

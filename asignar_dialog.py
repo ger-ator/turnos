@@ -30,7 +30,8 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
         self.populate_model()
         self.proxy_model = QtCore.QSortFilterProxyModel(self)
         self.proxy_model.setSourceModel(self.model)
-        self.sustitutos_view.setModel(self.proxy_model)   
+        self.sustitutos_view.setModel(self.proxy_model)
+        self.sel_model = self.sustitutos_view.selectionModel()
         ####
         ##Configuracion visual de la tabla
         self.sustitutos_view.hideColumn(0) ##sustituto_id
@@ -45,9 +46,9 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         ####
         ##Asignacion de eventos
+        self.sel_model.selectionChanged.connect(self.seleccionCambiada)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
         self.sustitutos_view.doubleClicked.connect(self.sustitutos_dclicked)
-        self.sustitutos_view.clicked.connect(self.sustitutos_clicked)
         ####
 
     def populate_model(self):
@@ -60,16 +61,19 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
 
     def buttonBox_OK(self):
         self.a_cubrir.asignaCandidato(self.trabajador_id.data())
-        self.accept()
-
-    def sustitutos_clicked(self, index):
-        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
-        self.trabajador_id = index.sibling(index.row(), 0)##sustituto_id
+        self.accept()        
             
     def sustitutos_dclicked(self, index):
         self.trabajador_id = index.sibling(index.row(), 0)##sustituto_id
-        self.a_cubrir.asignaCandidato(trabajador_id.data())
-        self.accept()
+        self.buttonBox_OK()
+        
+    def seleccionCambiada(self, selected, deselected):
+        if selected.isEmpty():
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
+        else:
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
+            indices = selected.indexes()
+            self.trabajador_id = indices[0].sibling(indices[0].row(), 0)##sustituto_id
             
 #######################################################################################
 if __name__ == '__main__':
@@ -78,7 +82,7 @@ if __name__ == '__main__':
     if not connection.createConnection():
         import sys
         sys.exit(1)
-    dlg = AsignarDialog(104)
+    dlg = AsignarDialog(150)
     dlg.show()
     app.exec_()
 ##    if dlg.exec_():
