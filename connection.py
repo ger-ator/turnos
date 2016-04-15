@@ -38,7 +38,8 @@ def createConnection():
                     "equipo_5 TEXT, "
                     "equipo_6 TEXT, "
                     "equipo_7 TEXT, "
-                    "equipo_8 TEXT) ")
+                    "equipo_8 TEXT, "
+                    "normal TEXT) ")
 
     if 'bajas' not in db.tables():
         query = QtSql.QSqlQuery()
