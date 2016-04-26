@@ -7,3 +7,5 @@ mainwindow_ui.py : mainwindow.ui
 	pyuic5 mainwindow.ui -o mainwindow_ui.py
 baja_ui.py : baja.ui
 	pyuic5 baja.ui -o baja_ui.py
+clean:
+	rm *_ui.py

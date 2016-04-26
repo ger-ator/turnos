@@ -13,8 +13,8 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
 
         self.inicio_dedit.setDate(QtCore.QDate.currentDate())
         self.final_dedit.setDate(QtCore.QDate.currentDate())
-        self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Apellido1',
-                                   'Apellido2', 'Equipo', 'Puesto'])
+        self.filtro_cbox.addItems(['Siglas', 'Nombre', 'Primer Apellido',
+                                   'Segundo Apellido', 'Puesto', 'Equipo'])
         self.motivo_cbox.addItems(['Baja medica', 'Formacion', 'Combustible',
                                    'Otros'])
 
@@ -32,9 +32,8 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Primer Apellido")
         self.model.setHeaderData(3, QtCore.Qt.Horizontal, "Segundo Apellido")
         self.model.setHeaderData(4, QtCore.Qt.Horizontal, "Puesto")
-        self.resultado_view.hideColumn(5)##unidad
-        self.model.setHeaderData(6, QtCore.Qt.Horizontal, "Equipo")
-        self.resultado_view.hideColumn(7) ##personal_id
+        self.model.setHeaderData(5, QtCore.Qt.Horizontal, "Equipo")
+        self.resultado_view.hideColumn(6) ##personal_id
         self.resultado_view.resizeColumnsToContents()
         ####
         ##Inhabilito OK en buttonbox
@@ -49,7 +48,7 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
 
     def populate_model(self):
         self.model.setQuery("SELECT siglas, nombre, apellido1, "
-                            "apellido2, puesto, unidad, equipo, "
+                            "apellido2, puesto, equipo, "
                             "personal_id "
                             "FROM personal")
         self.resultado_view.resizeColumnsToContents()
@@ -80,7 +79,7 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
         else:
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
             indices = selected.indexes()
-            self.trabajador_id = indices[0].sibling(indices[0].row(), 7)##personal_id
+            self.trabajador_id = indices[0].sibling(indices[0].row(), 6)##personal_id
             
 #######################################################################################
 if __name__ == '__main__':

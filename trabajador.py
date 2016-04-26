@@ -12,16 +12,6 @@ class Turno(Enum):
     simulador = "Simulador"
     sin_asignar = ""
 
-    def __sub__(self, turno):
-        if self is Turno.manana and turno is Turno.noche:
-            return 0
-        elif self is Turno.tarde and turno is Turno.manana:
-            return 0
-        elif self is Turno.noche and turno is Turno.tarde:
-            return 0
-        else:
-            return 8            
-
 class Puesto(Enum):
     JTurno = "Jefe de Turno"
     Supervisor = "Supervisor"
@@ -39,6 +29,7 @@ class Unidad(Enum):
     U1 = "1"
     U2 = "2"
     UX = "X"
+    sin_asignar = ""
 
 class Equipo(Enum):
     equipo_1 = 1
@@ -49,6 +40,7 @@ class Equipo(Enum):
     equipo_6 = 6
     equipo_7 = 7
     equipo_8 = 8
+    normal = ""
 
 class Trabajador(object):
     def __init__(self, trabajadorid):
