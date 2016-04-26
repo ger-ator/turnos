@@ -14,32 +14,11 @@ def createConnection():
                     "nombre TEXT, "                    
                     "apellido1 TEXT, "
                     "apellido2 TEXT, "
-                    "puesto TEXT, "
-                    "unidad TEXT, "
-                    "equipo INTEGER)")
-
-    if 'calendario' not in db.tables():
-        query = QtSql.QSqlQuery()
-        query.exec_("CREATE TABLE calendario ( "
-                    "calendario_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
-                    "fecha DATE UNIQUE NOT NULL, "
-                    "manana TEXT NOT NULL, "
-                    "tarde TEXT NOT NULL, "
-                    "noche TEXT NOT NULL, "
-                    "reten TEXT NOT NULL, "
-                    "oficina TEXT, "
-                    "simulador TEXT, "
-                    "descanso TEXT, "
-                    "vacaciones TEXT, "
-                    "equipo_1 TEXT, "
-                    "equipo_2 TEXT, "
-                    "equipo_3 TEXT, "
-                    "equipo_4 TEXT, "
-                    "equipo_5 TEXT, "
-                    "equipo_6 TEXT, "
-                    "equipo_7 TEXT, "
-                    "equipo_8 TEXT, "
-                    "normal TEXT) ")
+                    "puesto INTEGER, "
+                    "unidad INTEGER, "
+                    "grupo INTEGER), "
+                    "FOREIGN KEY(grupo) REFERENCES grupos(grupo_id), "
+                    "FOREIGN KEY(puesto) REFERENCES puestos(puesto_id))")
 
     if 'bajas' not in db.tables():
         query = QtSql.QSqlQuery()
@@ -68,13 +47,13 @@ def createConnection():
                     "FOREIGN KEY(sustituto_id) REFERENCES personal(personal_id), "
                     "FOREIGN KEY(baja_id) REFERENCES bajas(baja_id))")
 
-    if 'candidatos' not in db.tables():
+    if 'calendario' not in db.tables():
         query = QtSql.QSqlQuery()
-        query.exec_("""PRAGMA foreign_keys = ON""")
-        query.clear()
-        query.exec_("CREATE TABLE candidatos ("
-                    "candidatos_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    "sustituto_id INTEGER, "
-                    "turno TEXT, "
-                    "FOREIGN KEY(sustituto_id) REFERENCES personal(personal_id))")        
+        query.exec_("CREATE TABLE nuevo_calendario ("
+                    "calendario_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                    "fecha DATE NOT NULL, "
+                    "grupo INTEGER NOT NULL, "
+                    "jornada INTEGER NOT NULL, "
+                    "FOREIGN KEY(grupo) REFERENCES grupos(grupo_id), "
+                    "FOREIGN KEY(jornada) REFERENCES jornadas(jornada_id))")
     return True

@@ -6,7 +6,7 @@ import asignar_dialog
 import baja_dialog
 import connection
 
-from mainwindow_ui import Ui_MainWindow
+from ui.mainwindow_ui import Ui_MainWindow
 
 class MyDelegate(QtWidgets.QStyledItemDelegate):
     ##El argumento columna indica la referencia para colorear rojo o verde
@@ -23,13 +23,13 @@ class MyDelegate(QtWidgets.QStyledItemDelegate):
             painter.setBrush(QtGui.QBrush(QtCore.Qt.red))
             painter.drawRect(option.rect)
             painter.setPen(QtGui.QPen(QtCore.Qt.white))
-            painter.drawText(option.rect, QtCore.Qt.AlignCenter, index.data())
+            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
         else:
             painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
             painter.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
             painter.drawRect(option.rect)
             painter.setPen(QtGui.QPen(QtCore.Qt.white))
-            painter.drawText(option.rect, QtCore.Qt.AlignCenter, index.data())            
+            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
         painter.restore()
 
 class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -49,7 +49,6 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.proxy_model.setFilterKeyColumn(9)
         self.proxy_model.setFilterRegExp(filtro)
         self.necesidades_view.setModel(self.proxy_model)
-        self.necesidades_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         ####
         ####Configuracion visual de la tabla
         self.necesidades_view.hideColumn(0)##sustitucion_id
@@ -79,10 +78,16 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def populate_model(self):
         self.model.setQuery("SELECT sustituciones.sustitucion_id, personal.nombre, "
-                            "personal.apellido1, personal.apellido2, personal.puesto, "
-                            "personal.unidad, sustituciones.turno, bajas.motivo, "
+                            "personal.apellido1, personal.apellido2, puestos.puesto, "
+                            "unidad.unidad, jornadas.turno, bajas.motivo, "
                             "sustituciones.sustituto_id, sustituciones.fecha "
                             "FROM sustituciones, personal, bajas "
+                            "INNER JOIN puestos "
+                            "ON puestos.puesto_id=personal.puesto "
+                            "INNER JOIN unidad "
+                            "ON unidad.unidad_id=personal.unidad "
+                            "INNER JOIN jornadas "
+                            "ON jornadas.turno_id=sustituciones.turno "
                             "WHERE (sustituciones.sustituido_id = personal.personal_id "
                             "AND sustituciones.baja_id = bajas.baja_id)")
         self.necesidades_view.resizeColumnsToContents()
