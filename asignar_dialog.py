@@ -23,8 +23,8 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
         self.sel_model = self.sustitutos_view.selectionModel()
         ####
         ##Filtrar por IDs de posibles sustitutos
-        filtro = "|".join(["^{0}$".format(candidato.rowid())
-                           for candidato in self.sustitucion.sustitutos()])
+        filtro = "|".join(["^{0}$".format(personal_id)
+                           for personal_id in self.sustitucion.sustitutos()])
         self.proxy_model.setFilterKeyColumn(0)##personal_id
         self.proxy_model.setFilterRegExp(filtro)
         ####

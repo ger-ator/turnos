@@ -316,7 +316,10 @@ class Sustitucion(object):
         trabajadores = trabajador.Trabajadores(self.dbase)
         sustituido = trabajador.Trabajador(self.dbase,
                                            self.sustituido())
-        candidatos = set()        
+        mis_sustituciones = Sustituciones(self.dbase)
+        mis_bajas = Bajas(self.dbase)
+        candidatos = set()
+        no_validos = set()
         puestos = [sustituido.puesto()]
         cal = calendario.Calendario()
         if puestos[0] is personal.Puesto.OpPolivalente:
@@ -325,12 +328,24 @@ class Sustitucion(object):
         elif puestos[0] in {personal.Puesto.OpReactor,
                             personal.Puesto.OpTurbina}:
             puestos.append(personal.Puesto.OpPolivalente)
-                    
+        ##Buscar trabajadores de otros equipos en jornada de Ofi, Des, Ret        
         for candidato in trabajadores.iterable():
             if (candidato.puesto() in puestos and
                 candidato.grupo() != sustituido.grupo() and
                 cal.getJornada(candidato, self.fecha()) in {personal.Jornada.Des,
                                                             personal.Jornada.Ret,
                                                             personal.Jornada.Ofi}):
-                candidatos.add(candidato)
-        return candidatos
+                candidatos.add(candidato.rowid())
+        ####
+        ##Buscar trabajadores que estan de baja o sustituyendo
+        for sustitucion in mis_sustituciones.iterable():
+            if sustitucion.fecha() == self.fecha():
+                no_validos.add(sustitucion.sustituto())                                         
+        for baja in mis_bajas.iterable():
+            if baja.inicio() <= self.fecha() and baja.final() >= self.fecha():
+                no_validos.add(baja.sustituido())
+        print(candidatos)
+        print(no_validos)
+        print(candidatos - no_validos)
+        
+        return (candidatos - no_validos)
