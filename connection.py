@@ -49,7 +49,7 @@ def createConnection():
 
     if 'calendario' not in db.tables():
         query = QtSql.QSqlQuery()
-        query.exec_("CREATE TABLE nuevo_calendario ("
+        query.exec_("CREATE TABLE calendario ("
                     "calendario_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
                     "fecha DATE NOT NULL, "
                     "grupo INTEGER NOT NULL, "
