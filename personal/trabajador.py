@@ -18,7 +18,7 @@ class Trabajadores(object):
         self.ids = Trabajadores._ids
 
     def iterable(self):
-        return [Trabajador(self.dbase, index) for index in self.ids]
+        return {Trabajador(self.dbase, index) for index in self.ids}
 
 class Trabajador(object):
     __BASE_PERSONAL = {"trabajador_id":0,

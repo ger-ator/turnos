@@ -20,10 +20,10 @@ class Bajas(object):
 
     def iterable(self, lista=None):
         if lista is None:
-            return [Baja(self.dbase, index) for index in self.ids]
+            return {Baja(self.dbase, index) for index in self.ids}
         else:
-            return [Baja(self.dbase, index)
-                    for index in self.ids if index in lista]
+            return {Baja(self.dbase, index)
+                    for index in self.ids if index in lista}
 
     def add(self, sustituido_id, inicio, final, motivo=""):
         ##Añadir la baja
@@ -202,11 +202,11 @@ class Sustituciones(object):
 
     def iterable(self, baja_id=None):
         if baja_id is None:
-            return [Sustitucion(self.dbase, index) for index in self.ids]
+            return {Sustitucion(self.dbase, index) for index in self.ids}
         else:
-            return [Sustitucion(self.dbase, index)
+            return {Sustitucion(self.dbase, index)
                     for index in self.ids
-                    if Sustitucion(self.dbase, index).baja() == baja_id]
+                    if Sustitucion(self.dbase, index).baja() == baja_id}
 
     def add(self, sustituido_id, sustituto_id, fecha, turno, baja_id):
         query = QtSql.QSqlQuery()
@@ -316,7 +316,7 @@ class Sustitucion(object):
         trabajadores = trabajador.Trabajadores(self.dbase)
         sustituido = trabajador.Trabajador(self.dbase,
                                            self.sustituido())
-        candidatos = []        
+        candidatos = set()        
         puestos = [sustituido.puesto()]
         cal = calendario.Calendario()
         if puestos[0] is personal.Puesto.OpPolivalente:
@@ -332,5 +332,5 @@ class Sustitucion(object):
                 cal.getJornada(candidato, self.fecha()) in {personal.Jornada.Des,
                                                             personal.Jornada.Ret,
                                                             personal.Jornada.Ofi}):
-                candidatos.append(candidato)
+                candidatos.add(candidato)
         return candidatos
