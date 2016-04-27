@@ -344,8 +344,4 @@ class Sustitucion(object):
         for baja in mis_bajas.iterable():
             if baja.inicio() <= self.fecha() and baja.final() >= self.fecha():
                 no_validos.add(baja.sustituido())
-        print(candidatos)
-        print(no_validos)
-        print(candidatos - no_validos)
-        
         return (candidatos - no_validos)
