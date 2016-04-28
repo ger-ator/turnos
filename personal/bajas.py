@@ -318,16 +318,19 @@ class Sustitucion(object):
                                            self.sustituido())
         mis_sustituciones = Sustituciones(self.dbase)
         mis_bajas = Bajas(self.dbase)
+        cal = calendario.Calendario()
         candidatos = set()
         no_validos = set()
-        puestos = [sustituido.puesto()]
-        cal = calendario.Calendario()
-        if puestos[0] is personal.Puesto.OpPolivalente:
-            puestos = puestos + [personal.Puesto.OpReactor,
-                                 personal.Puesto.OpTurbina]
-        elif puestos[0] in {personal.Puesto.OpReactor,
-                            personal.Puesto.OpTurbina}:
-            puestos.append(personal.Puesto.OpPolivalente)
+        puestos = set()
+        
+        if sustituido.puesto() is personal.Puesto.OpPolivalente:
+            puestos = {personal.Puesto.OpPolivalente,
+                       personal.Puesto.OpReactor,
+                       personal.Puesto.OpTurbina}
+        elif sustituido.puesto() in {personal.Puesto.OpReactor,
+                                     personal.Puesto.OpTurbina}:
+            puestos = {sustituido.puesto(),
+                       personal.Puesto.OpPolivalente}
         ##Buscar trabajadores de otros equipos en jornada de Ofi, Des, Ret        
         for candidato in trabajadores.iterable():
             if (candidato.puesto() in puestos and
@@ -337,11 +340,25 @@ class Sustitucion(object):
                                                             personal.Jornada.Ofi}):
                 candidatos.add(candidato.rowid())
         ####
-        ##Buscar trabajadores que estan de baja o sustituyendo
+        ##Filtrar trabajadores que estan de baja o sustituyendo
         for sustitucion in mis_sustituciones.iterable():
             if sustitucion.fecha() == self.fecha():
                 no_validos.add(sustitucion.sustituto())                                         
         for baja in mis_bajas.iterable():
             if baja.inicio() <= self.fecha() and baja.final() >= self.fecha():
                 no_validos.add(baja.sustituido())
+        ####
+        ##Filtrar trabajadores con TN programado o debido a sustitucion
+        ##para evitar empalmar dos turno seguidos
+        if self.turno() is personal.Jornada.TM:
+            for candidato_id in candidatos:
+                candidato = trabajador.Trabajador(self.dbase,
+                                                  candidato_id)
+                if cal.getJornada(candidato,
+                                  self.fecha().addDays(-1)) is personal.Jornada.TN:
+                    no_validos.add(candidato.rowid())
+            for sustitucion in mis_sustituciones.iterable():
+                if sustitucion.fecha() == self.fecha().addDays(-1):
+                    no_validos.add(sustitucion.sustituto())
         return (candidatos - no_validos)
+    
