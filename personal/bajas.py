@@ -303,7 +303,7 @@ class Sustitucion(object):
         return QtCore.QDate.fromString(self.getColumn("fecha"),
                                        QtCore.Qt.ISODate)
 
-    def final(self):
+    def turno(self):
         return personal.Jornada(self.getColumn("turno"))                                       
 
     def baja(self):

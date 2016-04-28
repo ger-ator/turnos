@@ -41,7 +41,7 @@ def createConnection():
                     "sustituido_id INTEGER, "
                     "sustituto_id INTEGER, "
                     "fecha DATE, "
-                    "turno TEXT, "
+                    "turno INTEGER, "
                     "baja_id INTEGER, "
                     "FOREIGN KEY(sustituido_id) REFERENCES personal(personal_id), "
                     "FOREIGN KEY(sustituto_id) REFERENCES personal(personal_id), "

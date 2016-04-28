@@ -1,5 +1,7 @@
 from enum import Enum
 
+from PyQt5 import QtSql
+
 class Jornada(Enum):
     TM = 1
     TT = 2
@@ -10,6 +12,14 @@ class Jornada(Enum):
     Vac = 7
     Sim = 8
     For = 9
+
+    def __str__(self):
+        query = QtSql.QSqlQuery()
+        query.prepare("SELECT turno FROM jornadas WHERE turno_id = ?")
+        query.addBindValue(self.value)
+        query.exec_()
+        query.first()
+        return query.value(0)
 
 class Grupo(Enum):
     SC1 = 1

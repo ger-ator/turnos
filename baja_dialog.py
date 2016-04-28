@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtWidgets, QtGui, QtSql, QtPrintSupport
 
-import personal.bajas
+from personal import bajas
+import cuadrante
 
 from ui.baja_ui import Ui_Dialog
 
@@ -11,7 +12,7 @@ class BajaDialog(QtWidgets.QDialog, Ui_Dialog):
         super().__init__(parent)
         self.setupUi(self)
         ##Lista de bajas
-        self.mis_bajas = personal.bajas.Bajas()
+        self.mis_bajas = bajas.Bajas()
         ####
         ##Configuracion del origen de datos
         self.model = QtSql.QSqlQueryModel(self)
@@ -76,13 +77,19 @@ class ImprimirBajaDialog(BajaDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setWindowTitle("Seleccionar bajas a imprimir")
-        self.mes_dedit = QtWidgets.QDateEdit(self)
-        self.mes_dedit.setCurrentSection(QtWidgets.QDateTimeEdit.MonthSection)
-        self.mes_dedit.setCalendarPopup(False)
-        self.mes_dedit.setObjectName("mes_dedit")
-        self.mes_dedit.setDisplayFormat("MM/yyyy")
-        self.gridLayout.addWidget(self.mes_dedit, 3, 1, 1, 1)
-        self.mes_dedit.setDate(QtCore.QDate.currentDate())
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.inicio_dedit = QtWidgets.QDateEdit(self)
+        self.inicio_dedit.setEnabled(False)
+        self.inicio_dedit.setCalendarPopup(True)
+        self.inicio_dedit.setObjectName("inicio_dedit")
+        self.horizontalLayout.addWidget(self.inicio_dedit)
+        self.final_dedit = QtWidgets.QDateEdit(self)
+        self.final_dedit.setEnabled(False)
+        self.final_dedit.setCalendarPopup(True)
+        self.final_dedit.setObjectName("final_dedit")
+        self.horizontalLayout.addWidget(self.final_dedit)
+        self.gridLayout.addLayout(self.horizontalLayout, 3, 1, 1, 1)
 
     def buttonBox_OK(self):
         dialog = QtPrintSupport.QPrintDialog()
@@ -92,81 +99,24 @@ class ImprimirBajaDialog(BajaDialog):
         self.accept()
 
     def handlePaintRequest(self, printer):
-        year = self.mes_dedit.date().year()
-        month = self.mes_dedit.date().month()
-        dias_mes = self.mes_dedit.date().daysInMonth()
-        documento = QtGui.QTextDocument()
-
         for baja in self.getBajas():
-            cursor = QtGui.QTextCursor(documento)
+            doc = cuadrante.Cuadrante(baja.rowid(),
+                                      self.inicio_dedit.date(),
+                                      self.final_dedit.date()).toTextDoc()
+        doc.print_(printer)
 
-            ##Preparar el encabezado de la tabla con los dias del mes
-            tabla_turnos = [["{0:02}".format(i+1) for i in range(dias_mes)]]
-            tabla_turnos[0].insert(0, "")
-
-            ##Obtener el ID del sustituido
-            query = QtSql.QSqlQuery()
-            query.prepare("SELECT sustituido_id FROM bajas WHERE baja_id = ?")
-            query.addBindValue(baja_id)
-            query.exec_()
-            query.first()
-            sustituido_id = query.value(0)
-
-            ##Preparo la fila del sustituido
-            sustituido = ["" for _ in range(dias_mes + 1)]
-            sustituido[0] = str(trabajador.Trabajador(sustituido_id))
-            query.prepare("SELECT strftime('%d', fecha), turno "
-                          "FROM sustituciones "
-                          "WHERE baja_id = ? AND strftime('%Y-%m', fecha) = ? ")
-            query.addBindValue(baja_id)
-            query.addBindValue("{0}-{1:02d}".format(year, month))
-            query.exec_()
-            while query.next():
-                    sustituido[int(query.value(0))] = query.value(1)[0]
-            tabla_turnos.append(sustituido)
-
-            ##Obtener IDs de los sustitutos
-            sustitutos = []
-            query.prepare("SELECT sustituto_id "
-                          "FROM sustituciones "
-                          "WHERE baja_id = ? AND strftime('%Y-%m', fecha) = ?")
-            query.addBindValue(baja.rowid())
-            query.addBindValue("{0}-{1:02d}".format(year, month))
-            query.exec_()
-            while query.next():
-                    if query.value(0) is None:
-                            continue
-                    elif query.value(0) in sustitutos:
-                            continue
-                    else:
-                            sustitutos.append(query.value(0))
-                            
-            ##Preparo las filas de los sustitutos
-            for sustituto in sustitutos:
-                if sustituto == "":
-                    continue
-                else:
-                    fila = ["" for _ in range(dias_mes + 1)]
-                    query.prepare("SELECT strftime('%d', fecha), turno "
-                                  "FROM sustituciones "
-                                  "WHERE baja_id = ? AND strftime('%Y-%m', fecha) = ? "
-                                  "AND sustituto_id = ?")
-                    query.addBindValue(baja.rowid())
-                    query.addBindValue("{0}-{1:02d}".format(year, month))
-                    query.addBindValue(sustituto)
-                    query.exec_()
-                    fila[0] = str(trabajador.Trabajador(sustituto))
-                    while query.next():
-                            fila[int(query.value(0))] = query.value(1)[0]
-                    tabla_turnos.append(fila)
-            
-            tabla = cursor.insertTable( len(tabla_turnos), dias_mes + 1)
-            for fila in tabla_turnos:
-                    for celda in fila:
-                            cursor.insertText(str(celda))
-                            cursor.movePosition(QtGui.QTextCursor.NextCell)
-        
-        documento.print_(printer)
+    def seleccionCambiada(self, selected, deselected):
+        if selected.isEmpty():
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
+            self.inicio_dedit.setEnabled(False)
+            self.final_dedit.setEnabled(False)
+        else:
+            self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
+            self.inicio_dedit.setEnabled(True)
+            self.final_dedit.setEnabled(True)
+            baja_seleccionada = self.getBajas().pop() ##Solo puedo seleccionar una fila
+            self.inicio_dedit.setDate(baja_seleccionada.inicio())
+            self.final_dedit.setDate(baja_seleccionada.final())
 
 class VistaPreviaBajaDialog(ImprimirBajaDialog):
     def buttonBox_OK(self):
@@ -220,7 +170,7 @@ class ModificarBajaDialog(BajaDialog):
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
             self.inicio_dedit.setEnabled(True)
             self.final_dedit.setEnabled(True)
-            baja_seleccionada = self.getBajas()[0] ##Solo puedo seleccionar una fila
+            baja_seleccionada = self.getBajas().pop() ##Solo puedo seleccionar una fila
             self.inicio_dedit.setDate(baja_seleccionada.inicio())
             self.final_dedit.setDate(baja_seleccionada.final())    
             
@@ -231,6 +181,6 @@ if __name__ == '__main__':
     if not connection.createConnection():
         import sys
         sys.exit(1)
-    dlg = ModificarBajaDialog()
+    dlg = VistaPreviaBajaDialog()
     dlg.exec_()        
 
