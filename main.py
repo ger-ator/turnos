@@ -203,8 +203,11 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.bajas_view.selectRow(0)            
 
     def seleccion_baja_cambiada(self, selected, deselected):
-        baja_id = selected.indexes()[0].data()
-        filtro = "^{0}$".format(baja_id)
+        if selected.isEmpty():
+            filtro = "^{0}$".format(-1)
+        else:
+            baja_id = selected.indexes()[0].data()
+            filtro = "^{0}$".format(baja_id)
         self.proxy_model.setFilterRegExp(filtro)
         self.necesidades_view.resizeColumnsToContents()
         self.asignado_ledit.clear()
