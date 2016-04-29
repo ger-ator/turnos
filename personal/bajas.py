@@ -321,16 +321,14 @@ class Sustitucion(object):
         cal = calendario.Calendario()
         candidatos = set()
         no_validos = set()
-        puestos = set()
+        puestos = {sustituido.puesto()}
         
-        if sustituido.puesto() is personal.Puesto.OpPolivalente:
-            puestos = {personal.Puesto.OpPolivalente,
-                       personal.Puesto.OpReactor,
-                       personal.Puesto.OpTurbina}
-        elif sustituido.puesto() in {personal.Puesto.OpReactor,
-                                     personal.Puesto.OpTurbina}:
-            puestos = {sustituido.puesto(),
-                       personal.Puesto.OpPolivalente}
+        if personal.Puesto.OpPolivalente in puestos:
+            puestos.update({personal.Puesto.OpReactor,
+                            personal.Puesto.OpTurbina})
+        elif (personal.Puesto.OpReactor in puestos or
+              personal.Puesto.OpTurbina in puestos):
+            puestos.add(personal.Puesto.OpPolivalente)
         ##Buscar trabajadores de otros equipos en jornada de Ofi, Des, Ret        
         for candidato in trabajadores.iterable():
             if (candidato.puesto() in puestos and
