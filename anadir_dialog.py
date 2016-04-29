@@ -87,14 +87,14 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
             self.trabajador_id = indices[0].sibling(indices[0].row(), 6)##personal_id
         
 #######################################################################################
-if __name__ == '__main__':
-    import connection
-    app = QtWidgets.QApplication([])
-    if not connection.createConnection():
-        import sys
-        sys.exit(1)
-    dlg = AnadirDialog()
-    dlg.show()
-    app.exec_()
+##if __name__ == '__main__':
+##    import connection
+##    app = QtWidgets.QApplication([])
+##    if not connection.createConnection():
+##        import sys
+##        sys.exit(1)
+##    dlg = AnadirDialog()
+##    dlg.show()
+##    app.exec_()
 ##    if dlg.exec_():
 ##        print(dlg.getData())

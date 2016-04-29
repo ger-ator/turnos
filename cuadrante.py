@@ -63,11 +63,3 @@ class Cuadrante(object):
         ####
         return documento
 
-
-if __name__ == '__main__':
-    import connection
-    if not connection.createConnection():
-        import sys
-        sys.exit(1)
-    prueba = Cuadrante(1, QtCore.QDate(2016,4,3), QtCore.QDate(2016,5, 1))
-    print(prueba.filas)

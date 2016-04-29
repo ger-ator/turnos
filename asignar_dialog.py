@@ -94,17 +94,17 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
             self.pringao = trabajador.Trabajador(None, candidato_id)
             
 #######################################################################################
-if __name__ == '__main__':
-    app = QtWidgets.QApplication([])
-    db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-    db.setDatabaseName('operacion.db')
-    if not db.open():
-        import sys
-        sys.exit(1)
-
-     
-    dlg = AsignarDialog(7)
-    dlg.show()
-    app.exec_()
+##if __name__ == '__main__':
+##    app = QtWidgets.QApplication([])
+##    db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
+##    db.setDatabaseName('operacion.db')
+##    if not db.open():
+##        import sys
+##        sys.exit(1)
+##
+##     
+##    dlg = AsignarDialog(7)
+##    dlg.show()
+##    app.exec_()
 ##    if dlg.exec_():
 ##        print(dlg.getData())

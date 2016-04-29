@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import sys
 from PyQt5 import QtSql, QtWidgets, QtCore, QtGui
 
 import anadir_dialog
@@ -52,6 +53,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.necesidades_view.hideColumn(0)##sustitucion_id
         self.necesidades_view.hideColumn(1)##fecha
+        self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Fecha")
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Nombre")
         self.model.setHeaderData(3, QtCore.Qt.Horizontal, "Primer Apellido")
         self.model.setHeaderData(4, QtCore.Qt.Horizontal, "Segundo Apellido")
@@ -209,9 +211,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         
 ###############################################################################3
 if __name__ == '__main__':
-    app = QtWidgets.QApplication([])
-    if not connection.createConnection():
-        import sys
+    app = QtWidgets.QApplication(sys.argv)
+    if not connection.createConnection():        
         sys.exit(1)
     window = Gestion()
     window.show()

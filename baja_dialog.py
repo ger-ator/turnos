@@ -175,12 +175,12 @@ class ModificarBajaDialog(BajaDialog):
             self.final_dedit.setDate(baja_seleccionada.final())    
             
 #######################################################################################
-if __name__ == '__main__':
-    import connection
-    app = QtWidgets.QApplication([])
-    if not connection.createConnection():
-        import sys
-        sys.exit(1)
-    dlg = VistaPreviaBajaDialog()
-    dlg.exec_()        
+##if __name__ == '__main__':
+##    import connection
+##    app = QtWidgets.QApplication([])
+##    if not connection.createConnection():
+##        import sys
+##        sys.exit(1)
+##    dlg = VistaPreviaBajaDialog()
+##    dlg.exec_()        
 
