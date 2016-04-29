@@ -53,7 +53,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.necesidades_view.hideColumn(0)##sustitucion_id
         self.necesidades_view.hideColumn(1)##fecha
-        self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Fecha")
+        self.model.setHeaderData(1, QtCore.Qt.Horizontal, "Fecha")
         self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Nombre")
         self.model.setHeaderData(3, QtCore.Qt.Horizontal, "Primer Apellido")
         self.model.setHeaderData(4, QtCore.Qt.Horizontal, "Segundo Apellido")
@@ -113,7 +113,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                             "INNER JOIN jornadas "
                             "ON jornadas.turno_id=sustituciones.turno "
                             "WHERE (sustituciones.sustituido_id = personal.personal_id "
-                            "AND sustituciones.baja_id = bajas.baja_id)")
+                            "AND sustituciones.baja_id = bajas.baja_id) "
+                            "ORDER BY sustituciones.fecha")
         self.necesidades_view.resizeColumnsToContents()
 
     def populate_bajas_model(self):
