@@ -1,2 +1,2 @@
 # turnos
-Herramienta de gestion de necesidades de personal a turnos.
+Herramienta de gestión de sustituciones para personal a turnos.
