@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtWidgets, QtSql
 
-import baja
+from personal import bajas
 
-from anadir_ui import Ui_Dialog
+from ui.anadir_ui import Ui_Dialog
 
 class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
     def __init__(self, parent = None):
@@ -47,10 +47,14 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
         ####
 
     def populate_model(self):
-        self.model.setQuery("SELECT siglas, nombre, apellido1, "
-                            "apellido2, puesto, equipo, "
-                            "personal_id "
-                            "FROM personal")
+        self.model.setQuery("SELECT personal.siglas, personal.nombre, "
+                            "personal.apellido1, personal.apellido2, "
+                            "puestos.puesto, grupos.grupo, personal.personal_id "
+                            "FROM personal "
+                            "INNER JOIN grupos "
+                            "ON grupos.grupo_id=personal.grupo "
+                            "INNER JOIN puestos "
+                            "ON puestos.puesto_id=personal.puesto ")
         self.resultado_view.resizeColumnsToContents()
 
     def filtro_text_edited(self, texto):
@@ -67,10 +71,11 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
                                           "posterior a la de fin")
             return False
         else:
-            baja.Baja(self.trabajador_id.data(),
-                      self.inicio_dedit.date(),
-                      self.final_dedit.date(),
-                      self.motivo_cbox.currentText())
+            mis_bajas = bajas.Bajas()
+            mis_bajas.add(self.trabajador_id.data(),
+                          self.inicio_dedit.date(),
+                          self.final_dedit.date(),
+                          self.motivo_cbox.currentText())
             self.accept()
 
     def seleccionCambiada(self, selected, deselected):
@@ -80,16 +85,16 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
             indices = selected.indexes()
             self.trabajador_id = indices[0].sibling(indices[0].row(), 6)##personal_id
-            
+        
 #######################################################################################
-if __name__ == '__main__':
-    import connection
-    app = QtWidgets.QApplication([])
-    if not connection.createConnection():
-        import sys
-        sys.exit(1)
-    dlg = AnadirDialog()
-    dlg.show()
-    app.exec_()
+##if __name__ == '__main__':
+##    import connection
+##    app = QtWidgets.QApplication([])
+##    if not connection.createConnection():
+##        import sys
+##        sys.exit(1)
+##    dlg = AnadirDialog()
+##    dlg.show()
+##    app.exec_()
 ##    if dlg.exec_():
 ##        print(dlg.getData())
