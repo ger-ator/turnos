@@ -124,7 +124,7 @@ class ImprimirBajaDialog(BajaDialog):
         self.final_dedit.setCalendarPopup(True)
         self.final_dedit.setObjectName("final_dedit")
         self.horizontalLayout.addWidget(self.final_dedit)
-        self.gridLayout.addLayout(self.horizontalLayout, 3, 1, 1, 1)
+        self.gridLayout.addLayout(self.horizontalLayout, 4, 1, 1, 1)
 
     def buttonBox_OK(self):
         dialog = QtPrintSupport.QPrintDialog()
