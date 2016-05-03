@@ -71,11 +71,13 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
                                           "posterior a la de fin")
             return False
         else:
+            trabajador_id = self.sel_model.selectedRows(6)#personal_id
             mis_bajas = bajas.Bajas()
-            mis_bajas.add(self.trabajador_id.data(),
-                          self.inicio_dedit.date(),
-                          self.final_dedit.date(),
-                          self.motivo_cbox.currentText())
+            for trabajador in trabajador_id:
+                mis_bajas.add(trabajador.data(),
+                              self.inicio_dedit.date(),
+                              self.final_dedit.date(),
+                              self.motivo_cbox.currentText())
             self.accept()
 
     def seleccionCambiada(self, selected, deselected):
@@ -83,8 +85,6 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         else:
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
-            indices = selected.indexes()
-            self.trabajador_id = indices[0].sibling(indices[0].row(), 6)##personal_id
         
 #######################################################################################
 ##if __name__ == '__main__':

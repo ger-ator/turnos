@@ -60,7 +60,7 @@ class BajaDialog(QtWidgets.QDialog, Ui_Dialog):
         self.proxy_model.setFilterRegExp(filtro)
 
     def getBajas(self):
-        filas_sel = self.sel_model.selectedRows(8)
+        filas_sel = self.sel_model.selectedRows(8)#baja_id
         return self.mis_bajas.iterable([fila.data()
                                         for fila in filas_sel])
 

@@ -45,7 +45,7 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
         ##Asignacion de eventos
         self.sel_model.selectionChanged.connect(self.seleccionCambiada)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
-        self.sustitutos_view.doubleClicked.connect(self.sustitutos_dclicked)
+        self.sustitutos_view.doubleClicked.connect(self.buttonBox_OK)
         ####
 
     def populate_model(self):    
@@ -77,21 +77,17 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
         self.sustitutos_view.resizeColumnsToContents()
 
     def buttonBox_OK(self):
-        self.sustitucion.setSustituto(self.pringao)
+        candidato_id = self.sel_model.selectedRows(0)#sustituto_id
+        for candidato in candidato_id:
+            pringao = trabajador.Trabajador(None, candidato.data())
+            self.sustitucion.setSustituto(pringao)
         self.accept()        
-            
-    def sustitutos_dclicked(self, index):
-        self.trabajador_id = index.sibling(index.row(), 0)##sustituto_id
-        self.buttonBox_OK()
         
     def seleccionCambiada(self, selected, deselected):
         if selected.isEmpty():
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         else:
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
-            indices = selected.indexes()
-            candidato_id = indices[0].sibling(indices[0].row(), 0).data()
-            self.pringao = trabajador.Trabajador(None, candidato_id)
             
 #######################################################################################
 ##if __name__ == '__main__':
