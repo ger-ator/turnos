@@ -59,7 +59,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -114,6 +114,13 @@
         <item row="0" column="2">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Filtrar por:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QComboBox" name="filtro_cbox"/>
           </item>
           <item>
@@ -128,6 +135,19 @@
           </item>
           <item>
            <widget class="QComboBox" name="buscar_cbox"/>
+          </item>
+          <item>
+           <spacer name="verticalSpacer">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
