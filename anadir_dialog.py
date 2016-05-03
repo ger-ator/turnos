@@ -39,10 +39,14 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
         ##Inhabilito OK en buttonbox
         self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(False)
         ####
+        ##Por defecto buscar_cbox esta oculto
+        self.buscar_cbox.hide()
+        ####
         ##Asignacion de eventos
         self.sel_model.selectionChanged.connect(self.seleccionCambiada)
+        self.filtro_cbox.currentIndexChanged.connect(self.filtro_sel_changed)
+        self.buscar_cbox.currentIndexChanged.connect(self.filtro_cbox_edited)
         self.buscar_ledit.textEdited.connect(self.filtro_text_edited)
-        self.filtro_cbox.currentIndexChanged.connect(self.proxy_model.setFilterKeyColumn)
         self.buttonBox.accepted.connect(self.buttonBox_OK)
         ####
 
@@ -57,8 +61,39 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
                             "ON puestos.puesto_id=personal.puesto ")
         self.resultado_view.resizeColumnsToContents()
 
+    def filtro_sel_changed(self, index):
+        if index == 4:
+            self.buscar_ledit.hide()
+            self.buscar_cbox.clear()
+            self.buscar_cbox.show()
+            query = QtSql.QSqlQuery()
+            query.exec_("SELECT puesto FROM puestos "
+                        "ORDER BY puesto_id ASC")
+            while query.next():
+                self.buscar_cbox.addItem(query.value(0))            
+        elif index == 5:
+            self.buscar_ledit.hide()
+            self.buscar_cbox.clear()
+            self.buscar_cbox.show()
+            query = QtSql.QSqlQuery()
+            query.exec_("SELECT grupo FROM grupos "
+                        "ORDER BY grupo_id ASC")
+            while query.next():
+                self.buscar_cbox.addItem(query.value(0))
+        else:
+            self.buscar_ledit.show()
+            self.buscar_cbox.hide()
+            self.proxy_model.setFilterRegExp("")
+        self.proxy_model.setFilterKeyColumn(index)
+
     def filtro_text_edited(self, texto):
         filtro = QtCore.QRegExp("^{0}".format(texto),
+                                QtCore.Qt.CaseInsensitive,
+                                QtCore.QRegExp.RegExp)
+        self.proxy_model.setFilterRegExp(filtro)
+
+    def filtro_cbox_edited(self, index):
+        filtro = QtCore.QRegExp("^{0}".format(self.buscar_cbox.currentText()),
                                 QtCore.Qt.CaseInsensitive,
                                 QtCore.QRegExp.RegExp)
         self.proxy_model.setFilterRegExp(filtro)
