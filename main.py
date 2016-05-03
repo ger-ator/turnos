@@ -86,6 +86,13 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.bajas_model.setHeaderData(8, QtCore.Qt.Horizontal, "Hasta")
         self.bajas_model.setHeaderData(9, QtCore.Qt.Horizontal, "Motivo")
         self.bajas_view.resizeColumnsToContents()
+        ####
+        ##Configuracion del filtro
+        self.filtro_cbox.addItems(["Nombre", "Primer Apellido",
+                                   "Segundo Apellido", "Puesto",
+                                   "Unidad", "Equipo"])
+        self.proxy_bajas_model.setFilterKeyColumn(1) ##por defecto en nombre
+        self.buscar_cbox.hide()
         ####Asignacion de eventos               
         self.actionAnadir.triggered.connect(self.anadir_btn_clicked)
         self.actionEliminar.triggered.connect(self.eliminar_btn_clicked)
@@ -96,6 +103,9 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.necesidades_view.doubleClicked.connect(self.necesidades_dclicked)
         self.tabWidget.currentChanged.connect(self.tab_changed)
         self.bajas_sel_model.selectionChanged.connect(self.seleccion_baja_cambiada)
+        self.filtro_cbox.currentIndexChanged.connect(self.filtro_sel_changed)
+        self.buscar_ledit.textEdited.connect(self.filtro_text_edited)
+        self.buscar_cbox.currentIndexChanged.connect(self.filtro_cbox_edited)
         ####
 
     def populate_model(self):
@@ -131,6 +141,52 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                                   "ON grupos.grupo_id=personal.grupo "
                                   "WHERE personal.personal_id = bajas.sustituido_id")
         self.bajas_view.resizeColumnsToContents()
+
+    def filtro_sel_changed(self, index):
+        if index == 3:
+            self.buscar_ledit.hide()
+            self.buscar_cbox.clear()
+            self.buscar_cbox.show()
+            query = QtSql.QSqlQuery()
+            query.exec_("SELECT puesto FROM puestos "
+                        "ORDER BY puesto_id ASC")
+            while query.next():
+                self.buscar_cbox.addItem(query.value(0))            
+        elif index == 4:
+            self.buscar_ledit.hide()
+            self.buscar_cbox.clear()
+            self.buscar_cbox.show()
+            query = QtSql.QSqlQuery()
+            query.exec_("SELECT unidad FROM unidad "
+                        "ORDER BY unidad_id ASC")
+            while query.next():
+                self.buscar_cbox.addItem(query.value(0))
+        elif index == 5:
+            self.buscar_ledit.hide()
+            self.buscar_cbox.clear()
+            self.buscar_cbox.show()
+            query = QtSql.QSqlQuery()
+            query.exec_("SELECT grupo FROM grupos "
+                        "ORDER BY grupo_id ASC")
+            while query.next():
+                self.buscar_cbox.addItem(query.value(0))
+        else:
+            self.buscar_ledit.show()
+            self.buscar_cbox.hide()
+            self.proxy_bajas_model.setFilterRegExp("")
+        self.proxy_bajas_model.setFilterKeyColumn(index + 1)
+
+    def filtro_text_edited(self, texto):
+        filtro = QtCore.QRegExp("^{0}".format(texto),
+                                QtCore.Qt.CaseInsensitive,
+                                QtCore.QRegExp.RegExp)
+        self.proxy_bajas_model.setFilterRegExp(filtro)
+
+    def filtro_cbox_edited(self, index):
+        filtro = QtCore.QRegExp("^{0}".format(self.buscar_cbox.currentText()),
+                                QtCore.Qt.CaseInsensitive,
+                                QtCore.QRegExp.RegExp)
+        self.proxy_bajas_model.setFilterRegExp(filtro)
 
     def eliminar_btn_clicked(self):
         dlg = baja_dialog.EliminarBajaDialog(self)
