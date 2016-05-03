@@ -14,7 +14,7 @@
    <string>Añadir necesidad de sustitución</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="6" column="1">
+   <item row="7" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QDateEdit" name="inicio_dedit">
@@ -59,7 +59,7 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="1">
+   <item row="3" column="1">
     <widget class="QTableView" name="resultado_view">
      <property name="alternatingRowColors">
       <bool>true</bool>
@@ -78,7 +78,7 @@
      </attribute>
     </widget>
    </item>
-   <item row="7" column="1">
+   <item row="8" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -91,12 +91,15 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="4" column="1">
     <widget class="QComboBox" name="motivo_cbox">
      <property name="editable">
       <bool>false</bool>
      </property>
     </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QComboBox" name="buscar_cbox"/>
    </item>
   </layout>
  </widget>
