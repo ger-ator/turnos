@@ -48,6 +48,7 @@ class BajaDialog(QtWidgets.QDialog, Ui_Dialog):
         ####
         ##Por defecto buscar_cbox esta oculto
         self.buscar_cbox.hide()
+        ####
         ##Asignacion de eventos
         self.buttonBox.accepted.connect(self.buttonBox_OK)
         self.sel_model.selectionChanged.connect(self.seleccionCambiada)
