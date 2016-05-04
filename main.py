@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import sys
+import csv
 from PyQt5 import QtSql, QtWidgets, QtCore, QtGui
 
 import anadir_dialog
@@ -99,6 +100,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.actionModificar.triggered.connect(self.modificar_btn_clicked)
         self.actionImprimir.triggered.connect(self.imprimir)
         self.actionVista_previa.triggered.connect(self.vista_previa)
+        self.actionExportar_base_de_datos.triggered.connect(self.exportar_db_csv)
+        self.actionImportar_base_de_datos.triggered.connect(self.importar_db_csv)
         self.calendarWidget.clicked.connect(self.calendarWidget_clicked)
         self.necesidades_view.doubleClicked.connect(self.necesidades_dclicked)
         self.tabWidget.currentChanged.connect(self.tab_changed)
@@ -205,6 +208,33 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         if dlg.exec_() == QtWidgets.QDialog.Accepted:
             self.populate_model()
             self.populate_bajas_model()
+
+    def exportar_db_csv(self):
+        csvfile, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Guardar CSV", "",
+                                                        "Tabla CSV (*.csv);; "
+                                                        "All Files (*)")
+        if not csvfile:
+            return
+        try:
+            file = open(csvfile, 'w')
+        except IOError:
+            QtWidgets.QMessageBox.information(self, "No se pudo crear el archivo.",
+                                              "Error al abrir: {0}".format(csvfile))
+            return
+        ##VOLCADO CSV
+        dbase = QtSql.QSqlDatabase.database()
+        csvwriter = csv.writer(file, dialect='excel')
+        for tabla in dbase.tables(QtSql.QSql.Tables):
+            query = QtSql.QSqlQuery()
+            query.exec_("SELECT * FROM {0}".format(tabla))
+            csvwriter.writerow(["tabla", tabla])
+            while query.next():
+                num_field = query.record().count()
+                csvwriter.writerow([query.value(i) for i in range(num_field)])
+        file.close()
+
+    def importar_db_csv(self):
+        pass
 
     def calendarWidget_clicked(self, date):
         filtro = QtCore.QRegExp(date.toString(QtCore.Qt.ISODate),

@@ -191,6 +191,9 @@
     <addaction name="separator"/>
     <addaction name="actionVista_previa"/>
     <addaction name="actionImprimir"/>
+    <addaction name="separator"/>
+    <addaction name="actionExportar_base_de_datos"/>
+    <addaction name="actionImportar_base_de_datos"/>
    </widget>
    <addaction name="menuArchivo"/>
    <addaction name="menuHerramientas"/>
@@ -282,6 +285,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionExportar_base_de_datos">
+   <property name="text">
+    <string>Exportar base de datos</string>
+   </property>
+   <property name="toolTip">
+    <string>Exporta base de datos a CSV</string>
+   </property>
+  </action>
+  <action name="actionImportar_base_de_datos">
+   <property name="text">
+    <string>Importar base de datos</string>
+   </property>
+   <property name="toolTip">
+    <string>Importar base de datos de CSV</string>
    </property>
   </action>
  </widget>
