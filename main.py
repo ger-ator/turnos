@@ -210,9 +210,10 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             self.populate_bajas_model()
 
     def exportar_db_csv(self):
-        csvfile, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Guardar CSV", "",
-                                                        "Tabla CSV (*.csv);; "
-                                                        "All Files (*)")
+        csvfile, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Guardar CSV",
+                                                           "",
+                                                           "Tabla CSV (*.csv);; "
+                                                           "All Files (*)")
         if not csvfile:
             return
         try:
@@ -221,10 +222,11 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             QtWidgets.QMessageBox.information(self, "No se pudo crear el archivo.",
                                               "Error al abrir: {0}".format(csvfile))
             return
-        ##VOLCADO CSV
         dbase = QtSql.QSqlDatabase.database()
         csvwriter = csv.writer(file, dialect='excel')
         for tabla in dbase.tables(QtSql.QSql.Tables):
+            if tabla == "sqlite_sequence":
+                continue
             query = QtSql.QSqlQuery()
             query.exec_("SELECT * FROM {0}".format(tabla))
             csvwriter.writerow(["tabla", tabla])
@@ -234,7 +236,32 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         file.close()
 
     def importar_db_csv(self):
-        pass
+        csvfile, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Guardar CSV",
+                                                           "",
+                                                           "Tabla CSV (*.csv);; "
+                                                           "All Files (*)")
+        if not csvfile:
+            return
+        try:
+            file = open(csvfile, newline='')
+        except IOError:
+            QtWidgets.QMessageBox.information(self, "No se pudo abrir el archivo.",
+                                              "Error al abrir: {0}".format(csvfile))
+            return
+        dbase = QtSql.QSqlDatabase.database()
+        csvreader = csv.reader(file, dialect='excel')
+        for fila in csvreader:
+            if fila[0] == "tabla":
+                num_field = dbase.record(fila[1]).count()
+                query_txt = "INSERT INTO {0} VALUES({1})".format(fila[1],
+                                                                 ",".join(["?"] * num_field))
+                continue
+            query = QtSql.QSqlQuery()
+            query.prepare(query_txt)
+            for i in range(num_field):
+                query.addBindValue(fila[i])
+            query.exec_()             
+        file.close()
 
     def calendarWidget_clicked(self, date):
         filtro = QtCore.QRegExp(date.toString(QtCore.Qt.ISODate),
