@@ -3,3 +3,4 @@ exe:
 clean:
 	rm -rf build
 	rm -rf dist
+	rm main.spec
