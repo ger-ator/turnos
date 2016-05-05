@@ -35,6 +35,9 @@ class Cuadrante(object):
                 tabla_mensual.append(tabla_temporal)
                 primer_dia = dia
                 tabla_temporal = [dia]
+        else:
+            tabla_mensual.append(tabla_temporal)
+            
 
         for mes in tabla_mensual:
             ##Insertar tabla
