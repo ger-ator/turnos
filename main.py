@@ -23,25 +23,20 @@ class SustitucionesDelegate(QtWidgets.QStyledItemDelegate):
         painter.save()
         asignado = index.sibling(index.row(), self.columna)
         if asignado.data() == "":
-            painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
             if option.state & QtWidgets.QStyle.State_Selected:
-                rojo = QtGui.QColor('darkRed')
+                color = QtGui.QColor('darkRed')
             else:
-                rojo = QtGui.QColor('red')
-            painter.setBrush(QtGui.QBrush(rojo))
-            painter.drawRect(option.rect)
-            painter.setPen(QtGui.QPen(QtCore.Qt.white))
-            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
-        else:
-            painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+                color = QtGui.QColor('red')
+        else:            
             if option.state & QtWidgets.QStyle.State_Selected:
-                verde = QtGui.QColor('darkGreen')
+                color = QtGui.QColor('darkGreen')
             else:
-                verde = QtGui.QColor('green')
-            painter.setBrush(QtGui.QBrush(verde))
-            painter.drawRect(option.rect)
-            painter.setPen(QtGui.QPen(QtCore.Qt.white))
-            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
+                color = QtGui.QColor('green')
+        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        painter.setBrush(QtGui.QBrush(color))
+        painter.drawRect(option.rect)
+        painter.setPen(QtGui.QPen(QtCore.Qt.white))
+        painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
         painter.restore()
 
 class BajasDelegate(QtWidgets.QStyledItemDelegate):
@@ -55,32 +50,28 @@ class BajasDelegate(QtWidgets.QStyledItemDelegate):
         sustituciones = self.mis_sustituciones.iterable(baja_id)
         necesidades = len(sustituciones)
         asignadas = 0
+        
         for sustitucion in sustituciones:
             if sustitucion.sustituto() != "":
                 asignadas += 1
                     
-        self.initStyleOption(option, index)        
+        self.initStyleOption(option, index)
         painter.save()        
         if necesidades > asignadas:
-            painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
             if option.state & QtWidgets.QStyle.State_Selected:
-                rojo = QtGui.QColor('darkRed')
+                color = QtGui.QColor('darkRed')
             else:
-                rojo = QtGui.QColor('red')
-            painter.setBrush(QtGui.QBrush(rojo))
-            painter.drawRect(option.rect)
-            painter.setPen(QtGui.QPen(QtCore.Qt.white))
-            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
-        else:
-            painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+                color = QtGui.QColor('red')
+        else:            
             if option.state & QtWidgets.QStyle.State_Selected:
-                verde = QtGui.QColor('darkGreen')
+                color = QtGui.QColor('darkGreen')
             else:
-                verde = QtGui.QColor('green')
-            painter.setBrush(QtGui.QBrush(verde))
-            painter.drawRect(option.rect)
-            painter.setPen(QtGui.QPen(QtCore.Qt.white))
-            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
+                color = QtGui.QColor('green')
+        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+        painter.setBrush(QtGui.QBrush(color))
+        painter.drawRect(option.rect)
+        painter.setPen(QtGui.QPen(QtCore.Qt.white))
+        painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
         painter.restore()
 
 class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
