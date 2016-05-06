@@ -1,0 +1,8 @@
+operacion.db
+*~
+*_ui.py
+__pycache__
+build
+dist
+main.spec
+backup
