@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 import sys
 import csv
+
 from PyQt5 import QtSql, QtWidgets, QtCore, QtGui
 
 from personal import bajas
-
 import anadir_dialog
 import asignar_dialog
 import baja_dialog
@@ -358,10 +358,12 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         if tab == 0:
             self.proxy_model.setFilterKeyColumn(1)##fecha
             self.necesidades_view.hideColumn(1)##fecha
+            self.necesidades_view.showColumn(8)##motivo
             self.calendarWidget_clicked(self.calendarWidget.selectedDate())
         if tab == 1:
             self.proxy_model.setFilterKeyColumn(10)##baja_id
             self.necesidades_view.showColumn(1)##fecha
+            self.necesidades_view.hideColumn(8)##motivo
             if self.bajas_sel_model.hasSelection():
                 self.seleccion_baja_cambiada(self.bajas_sel_model.selection(),
                                              None)
