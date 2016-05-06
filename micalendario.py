@@ -1,19 +1,20 @@
-from PyQt5 import QtSql, QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore, QtGui
+
+from personal import bajas
 
 class MiCalendario(QtWidgets.QCalendarWidget):
     def __init__(self,parent=None):
         super().__init__(parent)
+        self.mis_sustituciones = bajas.Sustituciones()
 
     def paintCell(self, painter, rect, date):
-        query = QtSql.QSqlQuery()
-        query.prepare("SELECT COUNT(sustitucion_id), COUNT(sustituto_id) "
-                      "FROM sustituciones "
-                      "WHERE fecha = ?")
-        query.addBindValue(date)
-        query.exec_()
-        query.first()
-        necesidades = query.value(0)
-        asignadas = query.value(1)
+        necesidades = 0
+        asignadas = 0
+        for sustitucion in self.mis_sustituciones.iterable():
+            if sustitucion.fecha() == date:
+                necesidades += 1
+                if sustitucion.sustituto() != "":
+                    asignadas += 1
 
         if necesidades == 0:
             super().paintCell(painter, rect, date)
