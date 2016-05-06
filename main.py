@@ -135,7 +135,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.bajas_model.setHeaderData(7, QtCore.Qt.Horizontal, "Desde")
         self.bajas_model.setHeaderData(8, QtCore.Qt.Horizontal, "Hasta")
         self.bajas_model.setHeaderData(9, QtCore.Qt.Horizontal, "Motivo")
-        baja_item_delegate = BajasDelegate(self)##sustituto_id                            
+        baja_item_delegate = BajasDelegate(self)                          
         self.bajas_view.setItemDelegate(baja_item_delegate)
         self.bajas_view.resizeColumnsToContents()
         ####
