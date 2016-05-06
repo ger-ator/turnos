@@ -17,27 +17,13 @@ class MiCalendario(QtWidgets.QCalendarWidget):
 
         if necesidades == 0:
             super().paintCell(painter, rect, date)
-        elif  date == self.selectedDate():
-            if necesidades > asignadas:
-                painter.save()
-                rojo = QtGui.QColor('darkRed')
-                blanco = QtGui.QColor('white')
-                painter.fillRect(rect, QtGui.QBrush(rojo))
-                painter.setPen(blanco)
-                painter.drawText(rect, QtCore.Qt.AlignCenter, str(date.day()))
-                painter.restore()
-            else:
-                painter.save()
-                verde = QtGui.QColor('darkGreen')
-                blanco = QtGui.QColor('white')
-                painter.fillRect(rect, QtGui.QBrush(verde))
-                painter.setPen(blanco)
-                painter.drawText(rect, QtCore.Qt.AlignCenter, str(date.day()))
-                painter.restore()        
         else:
             if necesidades > asignadas:
                 painter.save()
-                rojo = QtGui.QColor('red')
+                if date == self.selectedDate():
+                    rojo = QtGui.QColor('darkRed')
+                else:
+                    rojo = QtGui.QColor('red')
                 blanco = QtGui.QColor('white')
                 painter.fillRect(rect, QtGui.QBrush(rojo))
                 painter.setPen(blanco)
@@ -45,7 +31,10 @@ class MiCalendario(QtWidgets.QCalendarWidget):
                 painter.restore()
             else:
                 painter.save()
-                verde = QtGui.QColor('green')
+                if date == self.selectedDate():
+                    verde = QtGui.QColor('darkGreen')
+                else:
+                    verde = QtGui.QColor('green')
                 blanco = QtGui.QColor('white')
                 painter.fillRect(rect, QtGui.QBrush(verde))
                 painter.setPen(blanco)
