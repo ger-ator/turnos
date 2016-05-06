@@ -3,6 +3,8 @@ import sys
 import csv
 from PyQt5 import QtSql, QtWidgets, QtCore, QtGui
 
+from personal import bajas
+
 import anadir_dialog
 import asignar_dialog
 import baja_dialog
@@ -10,7 +12,7 @@ import connection
 
 from ui.mainwindow_ui import Ui_MainWindow
 
-class MyDelegate(QtWidgets.QStyledItemDelegate):
+class SustitucionesDelegate(QtWidgets.QStyledItemDelegate):
     ##El argumento columna indica la referencia para colorear rojo o verde
     def __init__(self, columna, parent=None, *args):
         super().__init__(parent, *args)
@@ -21,6 +23,45 @@ class MyDelegate(QtWidgets.QStyledItemDelegate):
         painter.save()
         asignado = index.sibling(index.row(), self.columna)
         if asignado.data() == "":
+            painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+            if option.state & QtWidgets.QStyle.State_Selected:
+                rojo = QtGui.QColor('darkRed')
+            else:
+                rojo = QtGui.QColor('red')
+            painter.setBrush(QtGui.QBrush(rojo))
+            painter.drawRect(option.rect)
+            painter.setPen(QtGui.QPen(QtCore.Qt.white))
+            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
+        else:
+            painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
+            if option.state & QtWidgets.QStyle.State_Selected:
+                verde = QtGui.QColor('darkGreen')
+            else:
+                verde = QtGui.QColor('green')
+            painter.setBrush(QtGui.QBrush(verde))
+            painter.drawRect(option.rect)
+            painter.setPen(QtGui.QPen(QtCore.Qt.white))
+            painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
+        painter.restore()
+
+class BajasDelegate(QtWidgets.QStyledItemDelegate):
+    ##El argumento columna indica la referencia para colorear rojo o verde
+    def __init__(self, parent=None, *args):
+        super().__init__(parent, *args)
+        self.mis_sustituciones = bajas.Sustituciones()
+
+    def paint(self, painter, option, index):
+        baja_id = index.sibling(index.row(), 0).data()
+        sustituciones = self.mis_sustituciones.iterable(baja_id)
+        necesidades = len(sustituciones)
+        asignadas = 0
+        for sustitucion in sustituciones:
+            if sustitucion.sustituto() != "":
+                asignadas += 1
+                    
+        self.initStyleOption(option, index)        
+        painter.save()        
+        if necesidades > asignadas:
             painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
             if option.state & QtWidgets.QStyle.State_Selected:
                 rojo = QtGui.QColor('darkRed')
@@ -72,8 +113,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model.setHeaderData(8, QtCore.Qt.Horizontal, "Motivo")
         self.necesidades_view.hideColumn(9)##sustituto_id
         self.necesidades_view.hideColumn(10)##baja_id
-        item_delegate = MyDelegate(9)##sustituto_id                            
-        self.necesidades_view.setItemDelegate(item_delegate)
+        sust_item_delegate = SustitucionesDelegate(9)##sustituto_id                            
+        self.necesidades_view.setItemDelegate(sust_item_delegate)
         self.necesidades_view.resizeColumnsToContents()
         ####
         ####Configuracion de bajas_view
@@ -94,6 +135,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.bajas_model.setHeaderData(7, QtCore.Qt.Horizontal, "Desde")
         self.bajas_model.setHeaderData(8, QtCore.Qt.Horizontal, "Hasta")
         self.bajas_model.setHeaderData(9, QtCore.Qt.Horizontal, "Motivo")
+        baja_item_delegate = BajasDelegate(self)##sustituto_id                            
+        self.bajas_view.setItemDelegate(baja_item_delegate)
         self.bajas_view.resizeColumnsToContents()
         ####
         ##Configuracion del filtro
