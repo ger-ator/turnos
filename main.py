@@ -104,6 +104,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.actionImportar_base_de_datos.triggered.connect(self.importar_db_csv)
         self.calendarWidget.clicked.connect(self.calendarWidget_clicked)
         self.necesidades_view.doubleClicked.connect(self.necesidades_dclicked)
+        self.necesidades_view.clicked.connect(self.necesidades_clicked)
         self.tabWidget.currentChanged.connect(self.tab_changed)
         self.bajas_sel_model.selectionChanged.connect(self.seleccion_baja_cambiada)
         self.filtro_cbox.currentIndexChanged.connect(self.filtro_sel_changed)
