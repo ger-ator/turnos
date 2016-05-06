@@ -17,18 +17,26 @@ class MyDelegate(QtWidgets.QStyledItemDelegate):
         self.columna = columna
 
     def paint(self, painter, option, index):
-        super().paint(painter, option, index)
+        self.initStyleOption(option, index)        
         painter.save()
         asignado = index.sibling(index.row(), self.columna)
         if asignado.data() == "":
             painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-            painter.setBrush(QtGui.QBrush(QtCore.Qt.red))
+            if option.state & QtWidgets.QStyle.State_Selected:
+                rojo = QtGui.QColor('darkRed')
+            else:
+                rojo = QtGui.QColor('red')
+            painter.setBrush(QtGui.QBrush(rojo))
             painter.drawRect(option.rect)
             painter.setPen(QtGui.QPen(QtCore.Qt.white))
             painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
         else:
             painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-            painter.setBrush(QtGui.QBrush(QtCore.Qt.darkGreen))
+            if option.state & QtWidgets.QStyle.State_Selected:
+                verde = QtGui.QColor('darkGreen')
+            else:
+                verde = QtGui.QColor('green')
+            painter.setBrush(QtGui.QBrush(verde))
             painter.drawRect(option.rect)
             painter.setPen(QtGui.QPen(QtCore.Qt.white))
             painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
