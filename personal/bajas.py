@@ -6,6 +6,13 @@ from personal import calendario
 from personal import personal
 from personal import trabajador
 
+def transaccion(func):
+   def func_wrapper(*args):
+       QtSql.QSqlDatabase.database().transaction()
+       func(*args)
+       QtSql.QSqlDatabase.database().commit()       
+   return func_wrapper
+
 class Bajas(object):
     _dbase = None
     _ids = []
@@ -25,6 +32,7 @@ class Bajas(object):
             return {Baja(self.dbase, index)
                     for index in self.ids if index in lista}
 
+    @transaccion
     def add(self, sustituido_id, inicio, final, motivo=""):
         ##Añadir la baja
         query = QtSql.QSqlQuery()
@@ -55,6 +63,7 @@ class Bajas(object):
                                       dia, turno, baja_insertada)
         ####
 
+    @transaccion
     def delete(self, baja):
         ##Borra las sustituciones asociadas a la baja
         mis_sustituciones = Sustituciones(self.dbase)
@@ -69,7 +78,7 @@ class Bajas(object):
         if not query.exec_():
             raise ValueError("Alguno de los argumentos no "
                              "es valido para la base de datos.")
-        return Bajas._ids.remove(baja.rowid())
+        Bajas._ids.remove(baja.rowid())
         ####
 
 class Baja(object):
@@ -231,7 +240,7 @@ class Sustituciones(object):
         if not query.exec_():
             raise ValueError("Alguno de los argumentos no "
                              "es valido para la base de datos.")        
-        return Sustituciones._ids.remove(sustitucion.rowid())
+        Sustituciones._ids.remove(sustitucion.rowid())
     ##ME FALTA DARE UNA VUELTA A COMO ELIMINO DE LA CACHE DE class Sustitucion
     ##DE MOMENTO DEJO LA CACHE SUCIA YA QUE LOS IDS SON UNICOS
 
