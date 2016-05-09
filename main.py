@@ -367,6 +367,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             self.necesidades_view.hideColumn(11)##Nombre sustituto
             self.necesidades_view.hideColumn(12)##Apellido1 sustituto
             self.necesidades_view.hideColumn(13)##Apellido2 sustituto
+            self.asignado_ledit.show()
+            self.label_2.show()
             self.calendarWidget_clicked(self.calendarWidget.selectedDate())
         if tab == 1:
             self.proxy_model.setFilterKeyColumn(10)##baja_id
@@ -380,6 +382,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             self.necesidades_view.showColumn(11)##Nombre sustituto
             self.necesidades_view.showColumn(12)##Apellido1 sustituto
             self.necesidades_view.showColumn(13)##Apellido2 sustituto
+            self.asignado_ledit.hide()
+            self.label_2.hide()
             if self.bajas_sel_model.hasSelection():
                 self.seleccion_baja_cambiada(self.bajas_sel_model.selection(),
                                              None)
