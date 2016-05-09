@@ -17,6 +17,9 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="6" column="0">
      <widget class="QTableView" name="necesidades_view">
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::SingleSelection</enum>
       </property>
