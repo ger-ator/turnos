@@ -12,6 +12,22 @@ import connection
 
 from ui.mainwindow_ui import Ui_MainWindow
 
+class MiQSqlQueryModel(QtSql.QSqlQueryModel):
+    def __init__(self, parent=None, *args):
+        super().__init__(parent)
+
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        return super().columnCount(parent) + 1
+        
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if (index.column() == 14 and role == QtCore.Qt.DisplayRole):
+            nombre = index.sibling(index.row(), 11).data()
+            apellido1 = index.sibling(index.row(), 12).data()
+            apellido2 = index.sibling(index.row(), 13).data()
+            return " ".join([nombre, apellido1, apellido2])
+        else:
+            return super().data(index, role)
+
 class SustitucionesDelegate(QtWidgets.QStyledItemDelegate):
     ##El argumento columna indica la referencia para colorear rojo o verde
     def __init__(self, columna, parent=None, *args):
@@ -80,7 +96,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         ####Configuracion de necesidades_view
-        self.model = QtSql.QSqlQueryModel(self)        
+        #self.model = QtSql.QSqlQueryModel(self)
+        self.model = MiQSqlQueryModel(self)
         self.populate_model()
         self.proxy_model = QtCore.QSortFilterProxyModel(self)
         self.proxy_model.setSourceModel(self.model)        
@@ -104,12 +121,11 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model.setHeaderData(8, QtCore.Qt.Horizontal, "Motivo")
         self.necesidades_view.hideColumn(9)##sustituto_id
         self.necesidades_view.hideColumn(10)##baja_id
-        self.model.setHeaderData(11, QtCore.Qt.Horizontal, "Nombre")
         self.necesidades_view.hideColumn(11)##nombre sustituto
-        self.model.setHeaderData(12, QtCore.Qt.Horizontal, "Primer Apellido")
         self.necesidades_view.hideColumn(12)##apellido1 sustituto
-        self.model.setHeaderData(13, QtCore.Qt.Horizontal, "Segundo Apellido")
-        self.necesidades_view.hideColumn(13)##apellido2 sustituto        
+        self.necesidades_view.hideColumn(13)##apellido2 sustituto
+        self.necesidades_view.hideColumn(14)##Nombre completo sustituto
+        self.model.setHeaderData(14, QtCore.Qt.Horizontal, "Sustituto") ##Col ficticia
         sust_item_delegate = SustitucionesDelegate(9)##sustituto_id                            
         self.necesidades_view.setItemDelegate(sust_item_delegate)
         self.necesidades_view.resizeColumnsToContents()
@@ -364,9 +380,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             self.necesidades_view.showColumn(5)##puesto
             self.necesidades_view.showColumn(6)##unidad
             self.necesidades_view.showColumn(8)##motivo
-            self.necesidades_view.hideColumn(11)##Nombre sustituto
-            self.necesidades_view.hideColumn(12)##Apellido1 sustituto
-            self.necesidades_view.hideColumn(13)##Apellido2 sustituto
+            self.necesidades_view.hideColumn(14)##Nombre completo sustituto
             self.asignado_ledit.show()
             self.label_2.show()
             self.calendarWidget_clicked(self.calendarWidget.selectedDate())
@@ -379,9 +393,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             self.necesidades_view.hideColumn(5)##puesto
             self.necesidades_view.hideColumn(6)##unidad
             self.necesidades_view.hideColumn(8)##motivo
-            self.necesidades_view.showColumn(11)##Nombre sustituto
-            self.necesidades_view.showColumn(12)##Apellido1 sustituto
-            self.necesidades_view.showColumn(13)##Apellido2 sustituto
+            self.necesidades_view.showColumn(14)##Nombre completo sustituto
             self.asignado_ledit.hide()
             self.label_2.hide()
             if self.bajas_sel_model.hasSelection():
