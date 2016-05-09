@@ -104,6 +104,12 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.model.setHeaderData(8, QtCore.Qt.Horizontal, "Motivo")
         self.necesidades_view.hideColumn(9)##sustituto_id
         self.necesidades_view.hideColumn(10)##baja_id
+        self.model.setHeaderData(11, QtCore.Qt.Horizontal, "Nombre")
+        self.necesidades_view.hideColumn(11)##nombre sustituto
+        self.model.setHeaderData(12, QtCore.Qt.Horizontal, "Primer Apellido")
+        self.necesidades_view.hideColumn(12)##apellido1 sustituto
+        self.model.setHeaderData(13, QtCore.Qt.Horizontal, "Segundo Apellido")
+        self.necesidades_view.hideColumn(13)##apellido2 sustituto        
         sust_item_delegate = SustitucionesDelegate(9)##sustituto_id                            
         self.necesidades_view.setItemDelegate(sust_item_delegate)
         self.necesidades_view.resizeColumnsToContents()
@@ -160,7 +166,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                             "personal.apellido1, personal.apellido2, "
                             "puestos.puesto, unidad.unidad, jornadas.turno, "
                             "bajas.motivo, sustituciones.sustituto_id, "
-                            "sustituciones.baja_id "
+                            "sustituciones.baja_id, sustitutos_dat.nombre, "
+                            "sustitutos_dat.apellido1, sustitutos_dat.apellido2 "
                             "FROM sustituciones, personal, bajas "
                             "INNER JOIN puestos "
                             "ON puestos.puesto_id=personal.puesto "
@@ -168,6 +175,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                             "ON unidad.unidad_id=personal.unidad "
                             "INNER JOIN jornadas "
                             "ON jornadas.turno_id=sustituciones.turno "
+                            "LEFT JOIN personal AS sustitutos_dat "
+                            "ON sustitutos_dat.personal_id=sustituciones.sustituto_id "
                             "WHERE (sustituciones.sustituido_id = personal.personal_id "
                             "AND sustituciones.baja_id = bajas.baja_id) "
                             "ORDER BY sustituciones.fecha")
@@ -349,12 +358,28 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         if tab == 0:
             self.proxy_model.setFilterKeyColumn(1)##fecha
             self.necesidades_view.hideColumn(1)##fecha
+            self.necesidades_view.showColumn(2)##nombre
+            self.necesidades_view.showColumn(3)##apellido1
+            self.necesidades_view.showColumn(4)##apellido2
+            self.necesidades_view.showColumn(5)##puesto
+            self.necesidades_view.showColumn(6)##unidad
             self.necesidades_view.showColumn(8)##motivo
+            self.necesidades_view.hideColumn(11)##Nombre sustituto
+            self.necesidades_view.hideColumn(12)##Apellido1 sustituto
+            self.necesidades_view.hideColumn(13)##Apellido2 sustituto
             self.calendarWidget_clicked(self.calendarWidget.selectedDate())
         if tab == 1:
             self.proxy_model.setFilterKeyColumn(10)##baja_id
             self.necesidades_view.showColumn(1)##fecha
+            self.necesidades_view.hideColumn(2)##nombre
+            self.necesidades_view.hideColumn(3)##apellido1
+            self.necesidades_view.hideColumn(4)##apellido2
+            self.necesidades_view.hideColumn(5)##puesto
+            self.necesidades_view.hideColumn(6)##unidad
             self.necesidades_view.hideColumn(8)##motivo
+            self.necesidades_view.showColumn(11)##Nombre sustituto
+            self.necesidades_view.showColumn(12)##Apellido1 sustituto
+            self.necesidades_view.showColumn(13)##Apellido2 sustituto
             if self.bajas_sel_model.hasSelection():
                 self.seleccion_baja_cambiada(self.bajas_sel_model.selection(),
                                              None)
