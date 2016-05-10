@@ -22,16 +22,15 @@ class MiCalendario(QtWidgets.QCalendarWidget):
                 color = QtGui.QColor('red')
             else:
                 color = QtGui.QColor('green')
+            lado = min([rect.size().width(), rect.size().height()]) // 2.5
+            rectangulo = QtCore.QRectF(rect.topLeft(), QtCore.QSizeF(lado, lado))
+            rectangulo.moveBottomRight(rect.bottomRight() - QtCore.QPointF(8, 3))
+            ##Paso a flotante
             painter.save()
             painter.setRenderHints(QtGui.QPainter.Antialiasing)
-            painter.setPen(QtGui.QPen(color,
-                                      3,
-                                      QtCore.Qt.SolidLine,
-                                      QtCore.Qt.RoundCap,
-                                      QtCore.Qt.RoundJoin))
-            rectangulo = QtCore.QRectF(rect)##Paso a flotante
-            radio = min([rectangulo.width(), rectangulo.height()]) / 2 - 2
-            painter.drawEllipse(rectangulo.center(), radio, radio)
+            painter.setBrush(color)
+            painter.setPen(QtCore.Qt.NoPen)
+            painter.drawEllipse(rectangulo)
             painter.restore()
 
 #######################################################################################
