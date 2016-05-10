@@ -8,6 +8,8 @@ class MiCalendario(QtWidgets.QCalendarWidget):
         self.mis_sustituciones = bajas.Sustituciones()
 
     def paintCell(self, painter, rect, date):
+        super().paintCell(painter, rect, date)
+        
         necesidades = 0
         asignadas = 0
         for sustitucion in self.mis_sustituciones.iterable():
@@ -15,26 +17,21 @@ class MiCalendario(QtWidgets.QCalendarWidget):
                 necesidades += 1
                 if sustitucion.sustituto() != "":
                     asignadas += 1
-
-        if necesidades == 0:
-            super().paintCell(painter, rect, date)
-        else:
-            painter.save()
+        if necesidades > 0:            
             if necesidades > asignadas:                
-                if date == self.selectedDate():
-                    color = QtGui.QColor('darkRed')
-                else:
-                    color = QtGui.QColor('red')
+                color = QtGui.QColor('red')
             else:
-                if date == self.selectedDate():
-                    color = QtGui.QColor('darkGreen')
-                else:
-                    color = QtGui.QColor('green')
-            blanco = QtGui.QColor('white')
-            painter.fillRect(rect, QtGui.QBrush(color))
-            painter.setPen(blanco)
-            painter.drawText(rect, QtCore.Qt.AlignCenter, str(date.day()))
-            painter.restore()        
+                color = QtGui.QColor('green')
+            lado = min([rect.size().width(), rect.size().height()]) // 2.5
+            rectangulo = QtCore.QRectF(rect.topLeft(), QtCore.QSizeF(lado, lado))
+            rectangulo.moveBottomRight(rect.bottomRight() - QtCore.QPointF(8, 3))
+            ##Paso a flotante
+            painter.save()
+            painter.setRenderHints(QtGui.QPainter.Antialiasing)
+            painter.setBrush(color)
+            painter.setPen(QtCore.Qt.NoPen)
+            painter.drawEllipse(rectangulo)
+            painter.restore()
 
 #######################################################################################
 ##if __name__ == '__main__':

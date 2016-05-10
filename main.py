@@ -12,83 +12,84 @@ import connection
 
 from ui.mainwindow_ui import Ui_MainWindow
 
-class MiQSqlQueryModel(QtSql.QSqlQueryModel):
+class SustQSqlQueryModel(QtSql.QSqlQueryModel):
     def __init__(self, parent=None, *args):
         super().__init__(parent)
+
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        return super().columnCount(parent) + 2
+        
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        if index.column() == 0:##Estado
+            asignado = index.sibling(index.row(), 10)
+            if asignado.data() == "":
+                icono = QtGui.QPixmap("./iconos/circulo-rojo.png")
+            else:
+                icono = QtGui.QPixmap("./iconos/circulo-verde.png")
+            pixmap = icono.scaled(QtCore.QSize(25, 25),
+                                  QtCore.Qt.KeepAspectRatio,
+                                  QtCore.Qt.SmoothTransformation)
+            if role == QtCore.Qt.DisplayRole:
+                return QtCore.QVariant()
+            if role == QtCore.Qt.DecorationRole:
+                return pixmap
+            if role == QtCore.Qt.SizeHintRole:
+                return pixmap.size()
+            else:
+                return QtCore.QVariant()          
+        elif index.column() == 15:##Sustituto
+            nombre = index.sibling(index.row(), 12).data()
+            apellido1 = index.sibling(index.row(), 13).data()
+            apellido2 = index.sibling(index.row(), 14).data()
+            nombre_completo = " ".join([nombre, apellido1, apellido2])
+            if role == QtCore.Qt.DisplayRole:
+                return nombre_completo
+            else:
+                return QtCore.QVariant()
+        else:
+            if (role == QtCore.Qt.TextAlignmentRole):
+                return QtCore.Qt.AlignCenter
+            return super().data(index.sibling(index.row(),
+                                              index.column() - 1), role)
+
+class BajasQSqlQueryModel(QtSql.QSqlQueryModel):
+    def __init__(self, parent=None, *args):
+        super().__init__(parent)
+        self.mis_sustituciones = bajas.Sustituciones()
 
     def columnCount(self, parent=QtCore.QModelIndex()):
         return super().columnCount(parent) + 1
         
     def data(self, index, role=QtCore.Qt.DisplayRole):
-        if (index.column() == 14 and role == QtCore.Qt.DisplayRole):
-            nombre = index.sibling(index.row(), 11).data()
-            apellido1 = index.sibling(index.row(), 12).data()
-            apellido2 = index.sibling(index.row(), 13).data()
-            return " ".join([nombre, apellido1, apellido2])
-        else:
-            return super().data(index, role)
-
-class SustitucionesDelegate(QtWidgets.QStyledItemDelegate):
-    ##El argumento columna indica la referencia para colorear rojo o verde
-    def __init__(self, columna, parent=None, *args):
-        super().__init__(parent, *args)
-        self.columna = columna
-
-    def paint(self, painter, option, index):
-        self.initStyleOption(option, index)        
-        painter.save()
-        asignado = index.sibling(index.row(), self.columna)
-        if asignado.data() == "":
-            if option.state & QtWidgets.QStyle.State_Selected:
-                color = QtGui.QColor('darkRed')
-            else:
-                color = QtGui.QColor('red')
-        else:            
-            if option.state & QtWidgets.QStyle.State_Selected:
-                color = QtGui.QColor('darkGreen')
-            else:
-                color = QtGui.QColor('green')
-        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-        painter.setBrush(QtGui.QBrush(color))
-        painter.drawRect(option.rect)
-        painter.setPen(QtGui.QPen(QtCore.Qt.white))
-        painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
-        painter.restore()
-
-class BajasDelegate(QtWidgets.QStyledItemDelegate):
-    ##El argumento columna indica la referencia para colorear rojo o verde
-    def __init__(self, parent=None, *args):
-        super().__init__(parent, *args)
-        self.mis_sustituciones = bajas.Sustituciones()
-
-    def paint(self, painter, option, index):
-        baja_id = index.sibling(index.row(), 0).data()
-        sustituciones = self.mis_sustituciones.iterable(baja_id)
-        necesidades = len(sustituciones)
-        asignadas = 0
+        if index.column() == 0:##Estado
+            baja_id = index.sibling(index.row(), 1).data()
+            sustituciones = self.mis_sustituciones.iterable(baja_id)
+            necesidades = len(sustituciones)
+            asignadas = 0
         
-        for sustitucion in sustituciones:
-            if sustitucion.sustituto() != "":
-                asignadas += 1
+            for sustitucion in sustituciones:
+                if sustitucion.sustituto() != "":
+                    asignadas += 1
                     
-        self.initStyleOption(option, index)
-        painter.save()        
-        if necesidades > asignadas:
-            if option.state & QtWidgets.QStyle.State_Selected:
-                color = QtGui.QColor('darkRed')
+            if necesidades > asignadas:
+                icono = QtGui.QPixmap("./iconos/circulo-rojo.png")
             else:
-                color = QtGui.QColor('red')
-        else:            
-            if option.state & QtWidgets.QStyle.State_Selected:
-                color = QtGui.QColor('darkGreen')
+                icono = QtGui.QPixmap("./iconos/circulo-verde.png")
+            pixmap = icono.scaled(QtCore.QSize(25, 25),
+                                  QtCore.Qt.KeepAspectRatio)
+            if role == QtCore.Qt.DisplayRole:
+                return QtCore.QVariant()
+            if role == QtCore.Qt.DecorationRole:
+                return pixmap
+            if role == QtCore.Qt.SizeHintRole:
+                return pixmap.size()
             else:
-                color = QtGui.QColor('green')
-        painter.setPen(QtGui.QPen(QtCore.Qt.NoPen))
-        painter.setBrush(QtGui.QBrush(color))
-        painter.drawRect(option.rect)
-        painter.setPen(QtGui.QPen(QtCore.Qt.white))
-        painter.drawText(option.rect, QtCore.Qt.AlignCenter, str(index.data()))
-        painter.restore()
+                return QtCore.QVariant()
+        else:
+            if (role == QtCore.Qt.TextAlignmentRole):
+                return QtCore.Qt.AlignCenter
+            return super().data(index.sibling(index.row(),
+                                              index.column() - 1), role)
 
 class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
@@ -97,7 +98,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
 
         ####Configuracion de necesidades_view
         #self.model = QtSql.QSqlQueryModel(self)
-        self.model = MiQSqlQueryModel(self)
+        self.model = SustQSqlQueryModel(self)
         self.populate_model()
         self.proxy_model = QtCore.QSortFilterProxyModel(self)
         self.proxy_model.setSourceModel(self.model)        
@@ -105,58 +106,56 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         filtro = QtCore.QRegExp(hoy,
                                 QtCore.Qt.CaseInsensitive,
                                 QtCore.QRegExp.RegExp)
-        self.proxy_model.setFilterKeyColumn(1)##fecha
+        self.proxy_model.setFilterKeyColumn(2)##fecha
         self.proxy_model.setFilterRegExp(filtro)
         self.necesidades_view.setModel(self.proxy_model)
-        
-        self.necesidades_view.hideColumn(0)##sustitucion_id
-        self.necesidades_view.hideColumn(1)##fecha
-        self.model.setHeaderData(1, QtCore.Qt.Horizontal, "Fecha")
-        self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Nombre")
-        self.model.setHeaderData(3, QtCore.Qt.Horizontal, "Primer Apellido")
-        self.model.setHeaderData(4, QtCore.Qt.Horizontal, "Segundo Apellido")
-        self.model.setHeaderData(5, QtCore.Qt.Horizontal, "Puesto")
-        self.model.setHeaderData(6, QtCore.Qt.Horizontal, "Unidad")
-        self.model.setHeaderData(7, QtCore.Qt.Horizontal, "Turno")
-        self.model.setHeaderData(8, QtCore.Qt.Horizontal, "Motivo")
-        self.necesidades_view.hideColumn(9)##sustituto_id
-        self.necesidades_view.hideColumn(10)##baja_id
-        self.necesidades_view.hideColumn(11)##nombre sustituto
-        self.necesidades_view.hideColumn(12)##apellido1 sustituto
-        self.necesidades_view.hideColumn(13)##apellido2 sustituto
-        self.necesidades_view.hideColumn(14)##Nombre completo sustituto
-        self.model.setHeaderData(14, QtCore.Qt.Horizontal, "Sustituto") ##Col ficticia
-        sust_item_delegate = SustitucionesDelegate(9)##sustituto_id                            
-        self.necesidades_view.setItemDelegate(sust_item_delegate)
+
+        self.model.setHeaderData(0, QtCore.Qt.Horizontal, "")
+        self.necesidades_view.hideColumn(1)##sustitucion_id
+        self.necesidades_view.hideColumn(2)##fecha
+        self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Fecha")
+        self.model.setHeaderData(3, QtCore.Qt.Horizontal, "Nombre")
+        self.model.setHeaderData(4, QtCore.Qt.Horizontal, "Primer Apellido")
+        self.model.setHeaderData(5, QtCore.Qt.Horizontal, "Segundo Apellido")
+        self.model.setHeaderData(6, QtCore.Qt.Horizontal, "Puesto")
+        self.model.setHeaderData(7, QtCore.Qt.Horizontal, "Unidad")
+        self.model.setHeaderData(8, QtCore.Qt.Horizontal, "Turno")
+        self.model.setHeaderData(9, QtCore.Qt.Horizontal, "Motivo")
+        self.necesidades_view.hideColumn(10)##sustituto_id
+        self.necesidades_view.hideColumn(11)##baja_id
+        self.necesidades_view.hideColumn(12)##nombre sustituto
+        self.necesidades_view.hideColumn(13)##apellido1 sustituto
+        self.necesidades_view.hideColumn(14)##apellido2 sustituto
+        self.necesidades_view.hideColumn(15)##Nombre completo sustituto
+        self.model.setHeaderData(15, QtCore.Qt.Horizontal, "Sustituto") ##Col ficticia
         self.necesidades_view.resizeColumnsToContents()
         ####
         ####Configuracion de bajas_view
-        self.bajas_model = QtSql.QSqlQueryModel(self)
+        self.bajas_model = BajasQSqlQueryModel(self)
         self.populate_bajas_model()
         self.proxy_bajas_model = QtCore.QSortFilterProxyModel(self)
         self.proxy_bajas_model.setSourceModel(self.bajas_model)        
         self.bajas_view.setModel(self.proxy_bajas_model)
         self.bajas_sel_model = self.bajas_view.selectionModel()
-        
-        self.bajas_view.hideColumn(0)##baja_id
-        self.bajas_model.setHeaderData(1, QtCore.Qt.Horizontal, "Nombre")
-        self.bajas_model.setHeaderData(2, QtCore.Qt.Horizontal, "Primer Apellido")
-        self.bajas_model.setHeaderData(3, QtCore.Qt.Horizontal, "Segundo Apellido")
-        self.bajas_model.setHeaderData(4, QtCore.Qt.Horizontal, "Puesto")
-        self.bajas_model.setHeaderData(5, QtCore.Qt.Horizontal, "Unidad")
-        self.bajas_model.setHeaderData(6, QtCore.Qt.Horizontal, "Equipo")
-        self.bajas_model.setHeaderData(7, QtCore.Qt.Horizontal, "Desde")
-        self.bajas_model.setHeaderData(8, QtCore.Qt.Horizontal, "Hasta")
-        self.bajas_model.setHeaderData(9, QtCore.Qt.Horizontal, "Motivo")
-        baja_item_delegate = BajasDelegate(self)                          
-        self.bajas_view.setItemDelegate(baja_item_delegate)
+
+        self.bajas_model.setHeaderData(0, QtCore.Qt.Horizontal, "")
+        self.bajas_view.hideColumn(1)##baja_id
+        self.bajas_model.setHeaderData(2, QtCore.Qt.Horizontal, "Nombre")
+        self.bajas_model.setHeaderData(3, QtCore.Qt.Horizontal, "Primer Apellido")
+        self.bajas_model.setHeaderData(4, QtCore.Qt.Horizontal, "Segundo Apellido")
+        self.bajas_model.setHeaderData(5, QtCore.Qt.Horizontal, "Puesto")
+        self.bajas_model.setHeaderData(6, QtCore.Qt.Horizontal, "Unidad")
+        self.bajas_model.setHeaderData(7, QtCore.Qt.Horizontal, "Equipo")
+        self.bajas_model.setHeaderData(8, QtCore.Qt.Horizontal, "Desde")
+        self.bajas_model.setHeaderData(9, QtCore.Qt.Horizontal, "Hasta")
+        self.bajas_model.setHeaderData(10, QtCore.Qt.Horizontal, "Motivo")
         self.bajas_view.resizeColumnsToContents()
         ####
         ##Configuracion del filtro
         self.filtro_cbox.addItems(["Nombre", "Primer Apellido",
                                    "Segundo Apellido", "Puesto",
                                    "Unidad", "Equipo"])
-        self.proxy_bajas_model.setFilterKeyColumn(1) ##por defecto en nombre
+        self.proxy_bajas_model.setFilterKeyColumn(2) ##por defecto en nombre
         self.buscar_cbox.hide()
         ####Asignacion de eventos               
         self.actionAnadir.triggered.connect(self.anadir_btn_clicked)
@@ -214,7 +213,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.bajas_view.resizeColumnsToContents()
 
     def filtro_sel_changed(self, index):
-        if index == 3:
+        if index == 4:
             self.buscar_ledit.hide()
             self.buscar_cbox.clear()
             self.buscar_cbox.show()
@@ -223,7 +222,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                         "ORDER BY puesto_id ASC")
             while query.next():
                 self.buscar_cbox.addItem(query.value(0))            
-        elif index == 4:
+        elif index == 5:
             self.buscar_ledit.hide()
             self.buscar_cbox.clear()
             self.buscar_cbox.show()
@@ -232,7 +231,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                         "ORDER BY unidad_id ASC")
             while query.next():
                 self.buscar_cbox.addItem(query.value(0))
-        elif index == 5:
+        elif index == 6:
             self.buscar_ledit.hide()
             self.buscar_cbox.clear()
             self.buscar_cbox.show()
@@ -245,7 +244,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
             self.buscar_ledit.show()
             self.buscar_cbox.hide()
             self.proxy_bajas_model.setFilterRegExp("")
-        self.proxy_bajas_model.setFilterKeyColumn(index + 1)
+        self.proxy_bajas_model.setFilterKeyColumn(index + 2)#Dos columnas antes del primer valor de filtrado
 
     def filtro_text_edited(self, texto):
         filtro = QtCore.QRegExp("^{0}".format(texto),
@@ -340,7 +339,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.asignado_ledit.clear()
 
     def necesidades_dclicked(self, index):
-        necesidad_id = index.sibling(index.row(),0)        
+        necesidad_id = index.sibling(index.row(),1)
         dlg = asignar_dialog.AsignarDialog(necesidad_id.data())
         if dlg.exec_() == QtWidgets.QDialog.Accepted:
             self.populate_model()
@@ -348,7 +347,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def necesidades_clicked(self, index):
         ##VER COMO HAGO ESTO CON QDataWidgetMapper
-        necesidad_id = index.sibling(index.row(), 9)##sustituto_id
+        necesidad_id = index.sibling(index.row(), 10)##sustituto_id
         query = QtSql.QSqlQuery()        
         query.prepare("SELECT nombre, apellido1, apellido2 "
                       "FROM personal "
@@ -372,28 +371,28 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def tab_changed(self, tab):
         if tab == 0:
-            self.proxy_model.setFilterKeyColumn(1)##fecha
-            self.necesidades_view.hideColumn(1)##fecha
-            self.necesidades_view.showColumn(2)##nombre
-            self.necesidades_view.showColumn(3)##apellido1
-            self.necesidades_view.showColumn(4)##apellido2
-            self.necesidades_view.showColumn(5)##puesto
-            self.necesidades_view.showColumn(6)##unidad
-            self.necesidades_view.showColumn(8)##motivo
-            self.necesidades_view.hideColumn(14)##Nombre completo sustituto
+            self.proxy_model.setFilterKeyColumn(2)##fecha
+            self.necesidades_view.hideColumn(2)##fecha
+            self.necesidades_view.showColumn(3)##nombre
+            self.necesidades_view.showColumn(4)##apellido1
+            self.necesidades_view.showColumn(5)##apellido2
+            self.necesidades_view.showColumn(6)##puesto
+            self.necesidades_view.showColumn(7)##unidad
+            self.necesidades_view.showColumn(9)##motivo
+            self.necesidades_view.hideColumn(15)##Nombre completo sustituto
             self.asignado_ledit.show()
             self.label_2.show()
             self.calendarWidget_clicked(self.calendarWidget.selectedDate())
         if tab == 1:
-            self.proxy_model.setFilterKeyColumn(10)##baja_id
-            self.necesidades_view.showColumn(1)##fecha
-            self.necesidades_view.hideColumn(2)##nombre
-            self.necesidades_view.hideColumn(3)##apellido1
-            self.necesidades_view.hideColumn(4)##apellido2
-            self.necesidades_view.hideColumn(5)##puesto
-            self.necesidades_view.hideColumn(6)##unidad
-            self.necesidades_view.hideColumn(8)##motivo
-            self.necesidades_view.showColumn(14)##Nombre completo sustituto
+            self.proxy_model.setFilterKeyColumn(11)##baja_id
+            self.necesidades_view.showColumn(2)##fecha
+            self.necesidades_view.hideColumn(3)##nombre
+            self.necesidades_view.hideColumn(4)##apellido1
+            self.necesidades_view.hideColumn(5)##apellido2
+            self.necesidades_view.hideColumn(6)##puesto
+            self.necesidades_view.hideColumn(7)##unidad
+            self.necesidades_view.hideColumn(9)##motivo
+            self.necesidades_view.showColumn(15)##Nombre completo sustituto
             self.asignado_ledit.hide()
             self.label_2.hide()
             if self.bajas_sel_model.hasSelection():
@@ -406,7 +405,7 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         if selected.isEmpty():
             filtro = "^{0}$".format(-1)
         else:
-            baja_id = selected.indexes()[0].data()
+            baja_id = selected.indexes()[1].data()
             filtro = "^{0}$".format(baja_id)
         self.proxy_model.setFilterRegExp(filtro)
         self.necesidades_view.resizeColumnsToContents()
