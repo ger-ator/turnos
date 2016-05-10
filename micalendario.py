@@ -8,6 +8,8 @@ class MiCalendario(QtWidgets.QCalendarWidget):
         self.mis_sustituciones = bajas.Sustituciones()
 
     def paintCell(self, painter, rect, date):
+        super().paintCell(painter, rect, date)
+        
         necesidades = 0
         asignadas = 0
         for sustitucion in self.mis_sustituciones.iterable():
@@ -15,26 +17,22 @@ class MiCalendario(QtWidgets.QCalendarWidget):
                 necesidades += 1
                 if sustitucion.sustituto() != "":
                     asignadas += 1
-
-        if necesidades == 0:
-            super().paintCell(painter, rect, date)
-        else:
-            painter.save()
+        if necesidades > 0:            
             if necesidades > asignadas:                
-                if date == self.selectedDate():
-                    color = QtGui.QColor('darkRed')
-                else:
-                    color = QtGui.QColor('red')
+                color = QtGui.QColor('red')
             else:
-                if date == self.selectedDate():
-                    color = QtGui.QColor('darkGreen')
-                else:
-                    color = QtGui.QColor('green')
-            blanco = QtGui.QColor('white')
-            painter.fillRect(rect, QtGui.QBrush(color))
-            painter.setPen(blanco)
-            painter.drawText(rect, QtCore.Qt.AlignCenter, str(date.day()))
-            painter.restore()        
+                color = QtGui.QColor('green')
+            painter.save()
+            painter.setRenderHints(QtGui.QPainter.Antialiasing)
+            painter.setPen(QtGui.QPen(color,
+                                      3,
+                                      QtCore.Qt.SolidLine,
+                                      QtCore.Qt.RoundCap,
+                                      QtCore.Qt.RoundJoin))
+            rectangulo = QtCore.QRectF(rect)##Paso a flotante
+            radio = min([rectangulo.width(), rectangulo.height()]) / 2 - 2
+            painter.drawEllipse(rectangulo.center(), radio, radio)
+            painter.restore()
 
 #######################################################################################
 ##if __name__ == '__main__':

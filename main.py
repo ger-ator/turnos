@@ -20,14 +20,15 @@ class SustQSqlQueryModel(QtSql.QSqlQueryModel):
         return super().columnCount(parent) + 2
         
     def data(self, index, role=QtCore.Qt.DisplayRole):
-        if index.column() == 0:
+        if index.column() == 0:##Estado
             asignado = index.sibling(index.row(), 10)
             if asignado.data() == "":
                 icono = QtGui.QPixmap("./iconos/circulo-rojo.png")
             else:
                 icono = QtGui.QPixmap("./iconos/circulo-verde.png")
-            pixmap = icono.scaled(QtCore.QSize(20, 20),
-                                  QtCore.Qt.KeepAspectRatio)
+            pixmap = icono.scaled(QtCore.QSize(25, 25),
+                                  QtCore.Qt.KeepAspectRatio,
+                                  QtCore.Qt.SmoothTransformation)
             if role == QtCore.Qt.DisplayRole:
                 return QtCore.QVariant()
             if role == QtCore.Qt.DecorationRole:
@@ -35,8 +36,8 @@ class SustQSqlQueryModel(QtSql.QSqlQueryModel):
             if role == QtCore.Qt.SizeHintRole:
                 return pixmap.size()
             else:
-                return QtCore.QVariant()
-        elif index.column() == 15:
+                return QtCore.QVariant()          
+        elif index.column() == 15:##Sustituto
             nombre = index.sibling(index.row(), 12).data()
             apellido1 = index.sibling(index.row(), 13).data()
             apellido2 = index.sibling(index.row(), 14).data()
@@ -46,6 +47,8 @@ class SustQSqlQueryModel(QtSql.QSqlQueryModel):
             else:
                 return QtCore.QVariant()
         else:
+            if (role == QtCore.Qt.TextAlignmentRole):
+                return QtCore.Qt.AlignCenter
             return super().data(index.sibling(index.row(),
                                               index.column() - 1), role)
 
@@ -58,7 +61,7 @@ class BajasQSqlQueryModel(QtSql.QSqlQueryModel):
         return super().columnCount(parent) + 1
         
     def data(self, index, role=QtCore.Qt.DisplayRole):
-        if index.column() == 0:
+        if index.column() == 0:##Estado
             baja_id = index.sibling(index.row(), 1).data()
             sustituciones = self.mis_sustituciones.iterable(baja_id)
             necesidades = len(sustituciones)
@@ -72,7 +75,7 @@ class BajasQSqlQueryModel(QtSql.QSqlQueryModel):
                 icono = QtGui.QPixmap("./iconos/circulo-rojo.png")
             else:
                 icono = QtGui.QPixmap("./iconos/circulo-verde.png")
-            pixmap = icono.scaled(QtCore.QSize(20, 20),
+            pixmap = icono.scaled(QtCore.QSize(25, 25),
                                   QtCore.Qt.KeepAspectRatio)
             if role == QtCore.Qt.DisplayRole:
                 return QtCore.QVariant()
@@ -83,6 +86,8 @@ class BajasQSqlQueryModel(QtSql.QSqlQueryModel):
             else:
                 return QtCore.QVariant()
         else:
+            if (role == QtCore.Qt.TextAlignmentRole):
+                return QtCore.Qt.AlignCenter
             return super().data(index.sibling(index.row(),
                                               index.column() - 1), role)
 
@@ -132,7 +137,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         self.proxy_bajas_model.setSourceModel(self.bajas_model)        
         self.bajas_view.setModel(self.proxy_bajas_model)
         self.bajas_sel_model = self.bajas_view.selectionModel()
-        
+
+        self.bajas_model.setHeaderData(0, QtCore.Qt.Horizontal, "")
         self.bajas_view.hideColumn(1)##baja_id
         self.bajas_model.setHeaderData(2, QtCore.Qt.Horizontal, "Nombre")
         self.bajas_model.setHeaderData(3, QtCore.Qt.Horizontal, "Primer Apellido")
