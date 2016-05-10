@@ -114,13 +114,15 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                                 QtCore.QRegExp.RegExp)
         self.proxy_model.setFilterKeyColumn(1)##fecha
         self.proxy_model.setFilterRegExp(filtro)
-        self.proxy_model.sort(2, QtCore.Qt.AscendingOrder)##Trabajador no disp
+        ##Por defecto ordeno por trabajador no disponible
+        self.proxy_model.sort(2, QtCore.Qt.AscendingOrder)
         self.necesidades_view.setModel(self.proxy_model)
                
         self.necesidades_view.hideColumn(0)##sustitucion_id
         self.necesidades_view.hideColumn(1)##fecha
         self.model.setHeaderData(1, QtCore.Qt.Horizontal, "Fecha")
-        self.model.setHeaderData(2, QtCore.Qt.Horizontal, "Trabajador no disponible")
+        self.model.setHeaderData(2, QtCore.Qt.Horizontal,
+                                 "Trabajador no disponible")
         self.model.setHeaderData(3, QtCore.Qt.Horizontal, "Puesto")
         self.model.setHeaderData(4, QtCore.Qt.Horizontal, "Unidad")
         self.model.setHeaderData(5, QtCore.Qt.Horizontal, "Turno")
@@ -143,8 +145,10 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         
         self.bajas_view.hideColumn(0)##baja_id
         self.bajas_model.setHeaderData(1, QtCore.Qt.Horizontal, "Nombre")
-        self.bajas_model.setHeaderData(2, QtCore.Qt.Horizontal, "Primer Apellido")
-        self.bajas_model.setHeaderData(3, QtCore.Qt.Horizontal, "Segundo Apellido")
+        self.bajas_model.setHeaderData(2, QtCore.Qt.Horizontal,
+                                       "Primer Apellido")
+        self.bajas_model.setHeaderData(3, QtCore.Qt.Horizontal,
+                                       "Segundo Apellido")
         self.bajas_model.setHeaderData(4, QtCore.Qt.Horizontal, "Puesto")
         self.bajas_model.setHeaderData(5, QtCore.Qt.Horizontal, "Unidad")
         self.bajas_model.setHeaderData(6, QtCore.Qt.Horizontal, "Equipo")
@@ -181,35 +185,37 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         ####
 
     def populate_model(self):
-        self.model.setQuery("SELECT sustituciones.sustitucion_id, "
-                            "sustituciones.fecha, sustituciones.sustituido_id, "
-                            "puestos.puesto, unidad.unidad, jornadas.turno, "
-                            "bajas.motivo, sustituciones.sustituto_id, "
-                            "sustituciones.baja_id "
-                            "FROM sustituciones, personal, bajas "
-                            "INNER JOIN puestos "
-                            "ON puestos.puesto_id=personal.puesto "
-                            "INNER JOIN unidad "
-                            "ON unidad.unidad_id=personal.unidad "
-                            "INNER JOIN jornadas "
-                            "ON jornadas.turno_id=sustituciones.turno "
-                            "WHERE (sustituciones.sustituido_id = personal.personal_id "
-                            "AND sustituciones.baja_id = bajas.baja_id) ")
+        self.model.setQuery("""
+            SELECT sustituciones.sustitucion_id, sustituciones.fecha,
+                   sustituciones.sustituido_id, puestos.puesto,
+                   unidad.unidad, jornadas.turno, bajas.motivo,
+                   sustituciones.sustituto_id, sustituciones.baja_id  
+            FROM sustituciones, personal, bajas
+                INNER JOIN puestos
+                ON puestos.puesto_id=personal.puesto
+                INNER JOIN unidad
+                ON unidad.unidad_id=personal.unidad
+                INNER JOIN jornadas
+                ON jornadas.turno_id=sustituciones.turno
+            WHERE sustituciones.sustituido_id = personal.personal_id
+                  AND sustituciones.baja_id = bajas.baja_id
+        """)
         self.necesidades_view.resizeColumnsToContents()
 
     def populate_bajas_model(self):
-        self.bajas_model.setQuery("SELECT bajas.baja_id, personal.nombre, "
-                                  "personal.apellido1, personal.apellido2, "
-                                  "puestos.puesto, unidad.unidad, grupos.grupo, "
-                                  "bajas.inicio, bajas.final, bajas.motivo "
-                                  "FROM personal, bajas "                                
-                                  "INNER JOIN unidad "
-                                  "ON unidad.unidad_id=personal.unidad "
-                                  "INNER JOIN puestos "
-                                  "ON puestos.puesto_id=personal.puesto "
-                                  "INNER JOIN grupos "
-                                  "ON grupos.grupo_id=personal.grupo "
-                                  "WHERE personal.personal_id = bajas.sustituido_id")
+        self.bajas_model.setQuery("""
+            SELECT bajas.baja_id, personal.nombre, personal.apellido1,
+                   personal.apellido2, puestos.puesto, unidad.unidad,
+                   grupos.grupo, bajas.inicio, bajas.final, bajas.motivo
+            FROM personal, bajas
+                INNER JOIN unidad
+                ON unidad.unidad_id=personal.unidad
+                INNER JOIN puestos
+                ON puestos.puesto_id=personal.puesto
+                INNER JOIN grupos
+                ON grupos.grupo_id=personal.grupo
+            WHERE personal.personal_id = bajas.sustituido_id
+        """)
         self.bajas_view.resizeColumnsToContents()
 
     def filtro_sel_changed(self, index):
@@ -289,7 +295,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             file = open(csvfile, 'w')
         except IOError:
-            QtWidgets.QMessageBox.information(self, "No se pudo crear el archivo.",
+            QtWidgets.QMessageBox.information(self,
+                                              "No se pudo crear el archivo.",
                                               "Error al abrir: {0}".format(csvfile))
             return
         dbase = QtSql.QSqlDatabase.database()
@@ -315,7 +322,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             file = open(csvfile, newline='')
         except IOError:
-            QtWidgets.QMessageBox.information(self, "No se pudo abrir el archivo.",
+            QtWidgets.QMessageBox.information(self,
+                                              "No se pudo abrir el archivo.",
                                               "Error al abrir: {0}".format(csvfile))
             return
         dbase = QtSql.QSqlDatabase.database()
