@@ -112,19 +112,8 @@ class ImprimirBajaDialog(BajaDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setWindowTitle("Seleccionar bajas a imprimir")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.inicio_dedit = QtWidgets.QDateEdit(self)
         self.inicio_dedit.setEnabled(False)
-        self.inicio_dedit.setCalendarPopup(True)
-        self.inicio_dedit.setObjectName("inicio_dedit")
-        self.horizontalLayout.addWidget(self.inicio_dedit)
-        self.final_dedit = QtWidgets.QDateEdit(self)
         self.final_dedit.setEnabled(False)
-        self.final_dedit.setCalendarPopup(True)
-        self.final_dedit.setObjectName("final_dedit")
-        self.horizontalLayout.addWidget(self.final_dedit)
-        self.gridLayout.addLayout(self.horizontalLayout, 4, 1, 1, 1)
 
     def buttonBox_OK(self):
         dialog = QtPrintSupport.QPrintDialog()
@@ -165,6 +154,8 @@ class EliminarBajaDialog(BajaDialog):
     def __init__(self, parent = None):
         super().__init__(parent)
         self.setWindowTitle("Seleccionar bajas a eliminar")
+        self.inicio_dedit.hide()
+        self.final_dedit.hide()
         
     def buttonBox_OK(self):
         for baja in self.getBajas():
@@ -176,19 +167,8 @@ class ModificarBajaDialog(BajaDialog):
         super().__init__(parent)
         self.bajas_view.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.setWindowTitle("Seleccionar baja a modificar")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.inicio_dedit = QtWidgets.QDateEdit(self)
         self.inicio_dedit.setEnabled(False)
-        self.inicio_dedit.setCalendarPopup(True)
-        self.inicio_dedit.setObjectName("inicio_dedit")
-        self.horizontalLayout.addWidget(self.inicio_dedit)
-        self.final_dedit = QtWidgets.QDateEdit(self)
         self.final_dedit.setEnabled(False)
-        self.final_dedit.setCalendarPopup(True)
-        self.final_dedit.setObjectName("final_dedit")
-        self.horizontalLayout.addWidget(self.final_dedit)
-        self.gridLayout.addLayout(self.horizontalLayout, 3, 1, 1, 1)
 
     def buttonBox_OK(self):
         for baja in self.getBajas():

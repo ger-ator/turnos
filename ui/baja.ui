@@ -76,6 +76,30 @@
    <item row="2" column="1">
     <widget class="QComboBox" name="buscar_cbox"/>
    </item>
+   <item row="4" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QDateEdit" name="inicio_dedit">
+       <property name="displayFormat">
+        <string>d 'de' MMMM 'de' yyyy</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDateEdit" name="final_dedit">
+       <property name="displayFormat">
+        <string>d 'de' MMMM 'de' yyyy</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <tabstops>
