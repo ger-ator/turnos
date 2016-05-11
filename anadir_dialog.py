@@ -106,22 +106,31 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
                                           "posterior a la de fin")
             return False
         else:
-            ##Inserta la baja
             trabajador_id = self.sel_model.selectedRows(6)#personal_id
             sustituido_id = trabajador_id[0].data()
             inicio = self.inicio_dedit.date()
             final = self.final_dedit.date()
-            
             mis_bajas = bajas.Bajas()
+            ##Se chequea si el trabajador esta de baja en el periodo.            
+            for baja in mis_bajas.iterable():
+                if (baja.sustituido() == sustituido_id and
+                    inicio <= baja.inicio() <= final or
+                    inicio <= baja.final() <= final):
+                    QtWidgets.QMessageBox.warning(self, "Error",
+                                                  "El trabajador ya esta de "
+                                                  "baja en ese periodo")
+                    self.reject()
+                    return False
+            ##Inserta la baja            
             mis_bajas.add(sustituido_id, inicio, final,
                           self.motivo_cbox.currentText())
             ##Comprueba si el personal de baja esta sustituyendo a alguien
             ##y elimina la asignacion
             mis_sustituciones = bajas.Sustituciones()
             for sustitucion in mis_sustituciones.iterable():
-                if sustitucion.sustituto() == sustituido_id:
-                    if inicio <= sustitucion.fecha() <= final:
-                        sustitucion.setSustituto(None)                    
+                if (sustitucion.sustituto() == sustituido_id and
+                    inicio <= sustitucion.fecha() <= final):
+                    sustitucion.setSustituto(None)                    
             self.accept()
 
     def seleccionCambiada(self, selected, deselected):
