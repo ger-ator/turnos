@@ -319,7 +319,10 @@ class Sustitucion(object):
         return self.getColumn("baja_id")
 
     def setSustituto(self, sustituto):
-        self.setColumn("sustituto_id", sustituto.rowid())
+        if isinstance(sustituto, trabajador.Trabajador):
+            self.setColumn("sustituto_id", sustituto.rowid())
+        else:
+            self.setColumn("sustituto_id", None)        
 
     def sustitutos(self):
         trabajadores = trabajador.Trabajadores(self.dbase)
