@@ -26,20 +26,14 @@ class SustQSqlQueryModel(QtSql.QSqlQueryModel):
                 if sustituido_id == "":
                     return QtCore.QVariant()
                 else:
-                    sustituido = trabajador.Trabajador(None, sustituido_id)
-                    return " ".join([sustituido.nombre(),
-                                     sustituido.apellido1(),
-                                     sustituido.apellido2()])
+                    return str(trabajador.Trabajador(None, sustituido_id))
         elif index.column() == 7:##Sustituto
             if role == QtCore.Qt.DisplayRole:
                 sustituto_id = super().data(index, role)
                 if sustituto_id == "":
                     return QtCore.QVariant()
                 else:
-                    sustituto = trabajador.Trabajador(None, sustituto_id)
-                    return " ".join([sustituto.nombre(),
-                                     sustituto.apellido1(),
-                                     sustituto.apellido2()])
+                    return str(trabajador.Trabajador(None, sustituto_id))
         elif index.column() == 9:##Estado
             asignado = index.sibling(index.row(), 7)##Sustituto
             if asignado.data() == QtCore.QVariant():
@@ -71,13 +65,13 @@ class BajasQSqlQueryModel(QtSql.QSqlQueryModel):
         
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if index.column() == 10:##Estado
-            baja_id = index.sibling(index.row(), 0).data()
-            sustituciones = self.mis_sustituciones.iterable(baja_id)
+            baja = bajas.Baja(None, index.sibling(index.row(), 0).data())
+            sustituciones = self.mis_sustituciones.iterable(baja)
             necesidades = len(sustituciones)
             asignadas = 0
         
             for sustitucion in sustituciones:
-                if sustitucion.sustituto() != "":
+                if sustitucion.sustituto() is not None:
                     asignadas += 1
                     
             if necesidades > asignadas:

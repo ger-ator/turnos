@@ -124,7 +124,7 @@ class ImprimirBajaDialog(BajaDialog):
 
     def handlePaintRequest(self, printer):
         for baja in self.getBajas():
-            doc = cuadrante.Cuadrante(baja.rowid(),
+            doc = cuadrante.Cuadrante(baja,
                                       self.inicio_dedit.date(),
                                       self.final_dedit.date()).toTextDoc()
         doc.print_(printer)
