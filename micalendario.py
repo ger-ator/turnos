@@ -15,7 +15,7 @@ class MiCalendario(QtWidgets.QCalendarWidget):
         for sustitucion in self.mis_sustituciones.iterable():
             if sustitucion.fecha() == date:
                 necesidades += 1
-                if sustitucion.sustituto() != "":
+                if sustitucion.sustituto() is not None:
                     asignadas += 1
         if necesidades > 0:            
             if necesidades > asignadas:                

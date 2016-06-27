@@ -8,6 +8,7 @@ from personal import bajas, trabajador
 import anadir_dialog
 import asignar_dialog
 import baja_dialog
+import dbpersonal_dialog
 import connection
 
 from ui.mainwindow_ui import Ui_MainWindow
@@ -26,20 +27,14 @@ class SustQSqlQueryModel(QtSql.QSqlQueryModel):
                 if sustituido_id == "":
                     return QtCore.QVariant()
                 else:
-                    sustituido = trabajador.Trabajador(None, sustituido_id)
-                    return " ".join([sustituido.nombre(),
-                                     sustituido.apellido1(),
-                                     sustituido.apellido2()])
+                    return str(trabajador.Trabajador(None, sustituido_id))
         elif index.column() == 7:##Sustituto
             if role == QtCore.Qt.DisplayRole:
                 sustituto_id = super().data(index, role)
                 if sustituto_id == "":
                     return QtCore.QVariant()
                 else:
-                    sustituto = trabajador.Trabajador(None, sustituto_id)
-                    return " ".join([sustituto.nombre(),
-                                     sustituto.apellido1(),
-                                     sustituto.apellido2()])
+                    return str(trabajador.Trabajador(None, sustituto_id))
         elif index.column() == 9:##Estado
             asignado = index.sibling(index.row(), 7)##Sustituto
             if asignado.data() == QtCore.QVariant():
@@ -71,13 +66,13 @@ class BajasQSqlQueryModel(QtSql.QSqlQueryModel):
         
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if index.column() == 10:##Estado
-            baja_id = index.sibling(index.row(), 0).data()
-            sustituciones = self.mis_sustituciones.iterable(baja_id)
+            baja = bajas.Baja(None, index.sibling(index.row(), 0).data())
+            sustituciones = self.mis_sustituciones.iterable(baja)
             necesidades = len(sustituciones)
             asignadas = 0
         
             for sustitucion in sustituciones:
-                if sustitucion.sustituto() != "":
+                if sustitucion.sustituto() is not None:
                     asignadas += 1
                     
             if necesidades > asignadas:
@@ -167,7 +162,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                                    "Unidad", "Equipo"])
         self.proxy_bajas_model.setFilterKeyColumn(1) ##por defecto en nombre
         self.buscar_cbox.hide()
-        ####Asignacion de eventos               
+        ####Asignacion de eventos
+        self.actionEditar_DB_personal.triggered.connect(self.db_personal)
         self.actionAnadir.triggered.connect(self.anadir_btn_clicked)
         self.actionEliminar.triggered.connect(self.eliminar_btn_clicked)
         self.actionModificar.triggered.connect(self.modificar_btn_clicked)
@@ -340,6 +336,10 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                 query.addBindValue(fila[i])
             query.exec_()             
         file.close()
+
+    def db_personal(self):
+        dlg = dbpersonal_dialog.DbPersonalDialog(self)
+        dlg.exec_()
 
     def calendarWidget_clicked(self, date):
         filtro = QtCore.QRegExp(date.toString(QtCore.Qt.ISODate),

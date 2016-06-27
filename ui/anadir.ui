@@ -18,6 +18,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QDateEdit" name="inicio_dedit">
+       <property name="displayFormat">
+        <string>d 'de' MMMM 'de' yyyy</string>
+       </property>
        <property name="calendarPopup">
         <bool>true</bool>
        </property>
@@ -25,6 +28,9 @@
      </item>
      <item>
       <widget class="QDateEdit" name="final_dedit">
+       <property name="displayFormat">
+        <string>d 'de' MMMM 'de' yyyy</string>
+       </property>
        <property name="calendarPopup">
         <bool>true</bool>
        </property>

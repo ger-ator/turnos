@@ -53,6 +53,27 @@ class Trabajador(object):
         self.datos = Trabajador._cache[self.personal_id]
         ####
 
+    def __str__(self):
+        return " ".join([self.nombre(), self.apellido1(), self.apellido2()])
+        
+    def __eq__(self, other):
+        if other is None:
+            return self is None
+        else:
+            return self.rowid() == other.rowid()
+
+    def __ne__(self, other):
+        if other is None:
+            return self is not None
+        else:
+            return self.rowid() != other.rowid()
+
+    def __key(self):
+        return (self.datos["trabajador_id"], self.datos["siglas"])
+
+    def __hash__(self):
+        return hash(self.__key()) 
+
     def getColumn(self, column):
         try:
             return self.datos[column]

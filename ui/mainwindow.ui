@@ -183,8 +183,15 @@
     <addaction name="actionExportar_base_de_datos"/>
     <addaction name="actionImportar_base_de_datos"/>
    </widget>
+   <widget class="QMenu" name="menuAaa">
+    <property name="title">
+     <string>Herramientas</string>
+    </property>
+    <addaction name="actionEditar_DB_personal"/>
+   </widget>
    <addaction name="menuArchivo"/>
    <addaction name="menuHerramientas"/>
+   <addaction name="menuAaa"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -289,6 +296,11 @@
    </property>
    <property name="toolTip">
     <string>Importar base de datos de CSV</string>
+   </property>
+  </action>
+  <action name="actionEditar_DB_personal">
+   <property name="text">
+    <string>Editar DB personal</string>
    </property>
   </action>
  </widget>

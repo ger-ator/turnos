@@ -1,4 +1,6 @@
-all: anadir_ui.py asignar_ui.py mainwindow_ui.py baja_ui.py
+all: anadir_ui.py asignar_ui.py mainwindow_ui.py baja_ui.py personal_ui.py
+personal_ui.py : personal.ui
+	pyuic5 personal.ui -o personal_ui.py
 anadir_ui.py : anadir.ui
 	pyuic5 anadir.ui -o anadir_ui.py
 asignar_ui.py : asignar.ui
