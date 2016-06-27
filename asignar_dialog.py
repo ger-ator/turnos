@@ -116,7 +116,7 @@ class AsignarDialog(QtWidgets.QDialog, Ui_Dialog):
             for sust in mis_sustituciones.iterable(self.sustitucion.baja()):
                 if (inicio <= sust.fecha() <= final and
                     pringao in sust.sustitutos() and
-                    cal.getJornada(pringao, sust.fecha()) is personal.Jornada.Ret:
+                    cal.getJornada(pringao, sust.fecha()) is personal.Jornada.Ret):
                     sust.setSustituto(pringao)
         ##Modo auto
         elif self.modo_cbox.currentIndex() == 2:

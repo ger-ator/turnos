@@ -8,6 +8,7 @@ from personal import bajas, trabajador
 import anadir_dialog
 import asignar_dialog
 import baja_dialog
+import dbpersonal_dialog
 import connection
 
 from ui.mainwindow_ui import Ui_MainWindow
@@ -161,7 +162,8 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                                    "Unidad", "Equipo"])
         self.proxy_bajas_model.setFilterKeyColumn(1) ##por defecto en nombre
         self.buscar_cbox.hide()
-        ####Asignacion de eventos               
+        ####Asignacion de eventos
+        self.actionEditar_DB_personal.triggered.connect(self.db_personal)
         self.actionAnadir.triggered.connect(self.anadir_btn_clicked)
         self.actionEliminar.triggered.connect(self.eliminar_btn_clicked)
         self.actionModificar.triggered.connect(self.modificar_btn_clicked)
@@ -334,6 +336,10 @@ class Gestion(QtWidgets.QMainWindow, Ui_MainWindow):
                 query.addBindValue(fila[i])
             query.exec_()             
         file.close()
+
+    def db_personal(self):
+        dlg = dbpersonal_dialog.DbPersonalDialog(self)
+        dlg.exec_()
 
     def calendarWidget_clicked(self, date):
         filtro = QtCore.QRegExp(date.toString(QtCore.Qt.ISODate),

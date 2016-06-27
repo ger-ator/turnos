@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5 import QtCore, QtWidgets, QtSql
 
-from personal import bajas
+from personal import bajas, trabajador
 
 from ui.anadir_ui import Ui_Dialog
 
@@ -106,29 +106,30 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
                                           "posterior a la de fin")
             return False
         else:
-            trabajador_id = self.sel_model.selectedRows(6)#personal_id
-            sustituido_id = trabajador_id[0].data()
+            celdas = self.sel_model.selectedRows(6)#personal_id
+            sustituido = trabajador.Trabajador(None,
+                                               celdas[0].data())
             inicio = self.inicio_dedit.date()
             final = self.final_dedit.date()
             mis_bajas = bajas.Bajas()
             ##Se chequea si el trabajador esta de baja en el periodo.            
             for baja in mis_bajas.iterable():
-                if (baja.sustituido() == sustituido_id and
-                    inicio <= baja.inicio() <= final or
-                    inicio <= baja.final() <= final):
+                if (baja.sustituido() == sustituido and
+                    (inicio <= baja.inicio() <= final or
+                    inicio <= baja.final() <= final)):
                     QtWidgets.QMessageBox.warning(self, "Error",
                                                   "El trabajador ya esta de "
                                                   "baja en ese periodo")
                     self.reject()
                     return False
             ##Inserta la baja            
-            mis_bajas.add(sustituido_id, inicio, final,
+            mis_bajas.add(sustituido, inicio, final,
                           self.motivo_cbox.currentText())
             ##Comprueba si el personal de baja esta sustituyendo a alguien
             ##y elimina la asignacion
             mis_sustituciones = bajas.Sustituciones()
             for sustitucion in mis_sustituciones.iterable():
-                if (sustitucion.sustituto() == sustituido_id and
+                if (sustitucion.sustituto() == sustituido and
                     inicio <= sustitucion.fecha() <= final):
                     sustitucion.setSustituto(None)                    
             self.accept()
@@ -140,14 +141,14 @@ class AnadirDialog(QtWidgets.QDialog, Ui_Dialog):
             self.buttonBox.button(QtWidgets.QDialogButtonBox.Ok).setEnabled(True)
         
 #######################################################################################
-##if __name__ == '__main__':
-##    import connection
-##    app = QtWidgets.QApplication([])
-##    if not connection.createConnection():
-##        import sys
-##        sys.exit(1)
-##    dlg = AnadirDialog()
-##    dlg.show()
-##    app.exec_()
-##    if dlg.exec_():
-##        print(dlg.getData())
+if __name__ == '__main__':
+    import connection
+    app = QtWidgets.QApplication([])
+    if not connection.createConnection():
+        import sys
+        sys.exit(1)
+    dlg = AnadirDialog()
+    dlg.show()
+    app.exec_()
+    if dlg.exec_():
+        print(dlg.getData())
